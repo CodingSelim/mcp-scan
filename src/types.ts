@@ -24,20 +24,48 @@ export const SEVERITY_WEIGHT: Record<Severity, number> = {
   info: 0,
 };
 
-/** OWASP MCP Top 10 (2026) reference ids used to tag findings. */
+/** Official OWASP MCP Top 10 (2025) reference ids. */
 export type OwaspMcpId =
-  | "MCP01" // Missing / broken authentication
-  | "MCP02" // Insecure transport
-  | "MCP03" // Tool poisoning / description injection
-  | "MCP04" // Command / code injection surface
-  | "MCP05" // Server-side request forgery (SSRF)
-  | "MCP06" // Unrestricted resource / file access
-  | "MCP07" // Sensitive data / secret leakage
-  | "MCP08"; // Excessive tool permissions
+  | "MCP01" // Token Mismanagement & Secret Exposure
+  | "MCP02" // Privilege Escalation via Scope Creep
+  | "MCP03" // Tool Poisoning
+  | "MCP04" // Software Supply Chain Attacks & Dependency Tampering
+  | "MCP05" // Command Injection & Execution
+  | "MCP06" // Prompt Injection via Contextual Payloads
+  | "MCP07" // Insufficient Authentication & Authorization
+  | "MCP08" // Lack of Audit and Telemetry
+  | "MCP09" // Shadow MCP Servers
+  | "MCP10"; // Context Injection & Over-Sharing
+
+export const OWASP_TITLES: Record<OwaspMcpId, string> = {
+  MCP01: "Token Mismanagement & Secret Exposure",
+  MCP02: "Privilege Escalation via Scope Creep",
+  MCP03: "Tool Poisoning",
+  MCP04: "Software Supply Chain Attacks & Dependency Tampering",
+  MCP05: "Command Injection & Execution",
+  MCP06: "Prompt Injection via Contextual Payloads",
+  MCP07: "Insufficient Authentication & Authorization",
+  MCP08: "Lack of Audit and Telemetry",
+  MCP09: "Shadow MCP Servers",
+  MCP10: "Context Injection & Over-Sharing",
+};
+
+/** Scanner check family — decoupled from OWASP numbering. */
+export type CheckCategory =
+  | "authn"
+  | "transport"
+  | "tool-poisoning"
+  | "command-injection"
+  | "ssrf"
+  | "path-traversal"
+  | "secret-exposure"
+  | "excessive-scope";
 
 export interface Finding {
-  /** Stable check id, e.g. "MCP03". */
-  readonly checkId: OwaspMcpId;
+  /** Scanner check family, e.g. "tool-poisoning". */
+  readonly category: CheckCategory;
+  /** Correct OWASP MCP Top 10 mapping for this finding. */
+  readonly owasp: OwaspMcpId;
   /** Short machine slug for the specific finding, e.g. "tool-description-injection". */
   readonly rule: string;
   readonly severity: Severity;
@@ -105,7 +133,7 @@ export interface ScanContext {
 
 /** A single, independently-runnable security check. */
 export interface Check {
-  readonly id: OwaspMcpId;
+  readonly id: CheckCategory;
   readonly name: string;
   run(ctx: ScanContext): Finding[] | Promise<Finding[]>;
 }

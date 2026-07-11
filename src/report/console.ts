@@ -65,7 +65,7 @@ export function renderConsole(result: ScanResult): string {
 
 function renderFinding(f: Finding, n: number): string {
   const out: string[] = [];
-  out.push(`  ${pc.dim(String(n).padStart(2, "0"))} ${sevTag(f.severity)} ${pc.bold(f.title)}  ${pc.dim(`[${f.checkId}/${f.rule}]`)}`);
+  out.push(`  ${pc.dim(String(n).padStart(2, "0"))} ${sevTag(f.severity)} ${pc.bold(f.title)}  ${pc.dim(`[OWASP ${f.owasp} · ${f.category}/${f.rule}]`)}`);
   out.push(`      ${pc.gray("where:")} ${f.location}`);
   out.push(`      ${wrap(f.description, "      ")}`);
   if (f.evidence) out.push(`      ${pc.dim("evidence: " + truncate(f.evidence, 160))}`);

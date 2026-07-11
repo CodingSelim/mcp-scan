@@ -1,23 +1,22 @@
 import type { Check, Finding, ScanContext } from "./types.js";
-import { mcp01Auth } from "./checks/mcp01-auth.js";
-import { mcp02Transport } from "./checks/mcp02-transport.js";
-import { mcp03Poisoning } from "./checks/mcp03-poisoning.js";
-import { mcp04CommandInjection } from "./checks/mcp04-command-injection.js";
-import { mcp05Ssrf } from "./checks/mcp05-ssrf.js";
-import { mcp06ResourceAccess } from "./checks/mcp06-resource-access.js";
-import { mcp07Secrets } from "./checks/mcp07-secrets.js";
-import { mcp08Permissions } from "./checks/mcp08-permissions.js";
+import { authnCheck } from "./checks/mcp01-auth.js";
+import { transportCheck } from "./checks/mcp02-transport.js";
+import { toolPoisoningCheck } from "./checks/mcp03-poisoning.js";
+import { commandInjectionCheck } from "./checks/mcp04-command-injection.js";
+import { ssrfCheck } from "./checks/mcp05-ssrf.js";
+import { pathTraversalCheck } from "./checks/mcp06-resource-access.js";
+import { secretExposureCheck } from "./checks/mcp07-secrets.js";
+import { excessiveScopeCheck } from "./checks/mcp08-permissions.js";
 
-/** All checks, in reporting order. */
 export const ALL_CHECKS: readonly Check[] = [
-  mcp01Auth,
-  mcp02Transport,
-  mcp03Poisoning,
-  mcp04CommandInjection,
-  mcp05Ssrf,
-  mcp06ResourceAccess,
-  mcp07Secrets,
-  mcp08Permissions,
+  secretExposureCheck,
+  excessiveScopeCheck,
+  toolPoisoningCheck,
+  commandInjectionCheck,
+  ssrfCheck,
+  pathTraversalCheck,
+  authnCheck,
+  transportCheck,
 ];
 
 export interface RunChecksOutcome {
@@ -25,10 +24,6 @@ export interface RunChecksOutcome {
   readonly errors: string[];
 }
 
-/**
- * Run every check in isolation. A check that throws is recorded as an error
- * but never aborts the scan.
- */
 export async function runChecks(
   ctx: ScanContext,
   checks: readonly Check[] = ALL_CHECKS,
@@ -38,8 +33,7 @@ export async function runChecks(
 
   for (const check of checks) {
     try {
-      const result = await check.run(ctx);
-      findings.push(...result);
+      findings.push(...(await check.run(ctx)));
     } catch (err) {
       errors.push(`Check ${check.id} (${check.name}) failed: ${(err as Error).message}`);
     }

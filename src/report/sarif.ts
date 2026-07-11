@@ -1,4 +1,5 @@
 import type { ScanResult, Severity } from "../types.js";
+import { OWASP_TITLES } from "../types.js";
 
 const SARIF_LEVEL: Record<Severity, "error" | "warning" | "note"> = {
   critical: "error",
@@ -17,25 +18,31 @@ const SECURITY_SEVERITY: Record<Severity, string> = {
 };
 
 export function renderSarif(result: ScanResult): string {
-  const ruleIds = new Map<string, { checkId: string; name: string }>();
+  const ruleIds = new Map<string, { owasp: string; category: string; name: string }>();
   for (const f of result.findings) {
-    const id = `${f.checkId}/${f.rule}`;
-    if (!ruleIds.has(id)) ruleIds.set(id, { checkId: f.checkId, name: f.title });
+    const id = `${f.category}/${f.rule}`;
+    if (!ruleIds.has(id)) ruleIds.set(id, { owasp: f.owasp, category: f.category, name: f.title });
   }
 
   const rules = [...ruleIds.entries()].map(([id, meta]) => ({
     id,
     name: meta.name,
-    properties: { tags: ["security", "mcp", meta.checkId] },
+    properties: {
+      tags: ["security", "mcp", meta.owasp, meta.category],
+      owasp: `${meta.owasp}:2025 ${OWASP_TITLES[meta.owasp as keyof typeof OWASP_TITLES]}`,
+    },
   }));
 
   const results = result.findings.map((f) => ({
-    ruleId: `${f.checkId}/${f.rule}`,
+    ruleId: `${f.category}/${f.rule}`,
     level: SARIF_LEVEL[f.severity],
-    message: { text: `${f.title}. ${f.description} Remediation: ${f.remediation}` },
+    message: {
+      text: `${f.title}. ${f.description} [OWASP ${f.owasp}:2025 ${OWASP_TITLES[f.owasp]}] Remediation: ${f.remediation}`,
+    },
     properties: {
       severity: f.severity,
       "security-severity": SECURITY_SEVERITY[f.severity],
+      owasp: f.owasp,
       location: f.location,
       evidence: f.evidence ?? "",
     },

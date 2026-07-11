@@ -15,11 +15,19 @@ describe("end-to-end scan against live stdio servers", () => {
     expect(result.counts.critical).toBeGreaterThan(0);
     expect(result.grade).toBe("F");
 
-    const ids = new Set(result.findings.map((f) => f.checkId));
-    // command injection, poisoning, ssrf, resource, secrets, permissions
-    for (const id of ["MCP03", "MCP04", "MCP05", "MCP06", "MCP07", "MCP08"]) {
-      expect(ids.has(id as any), `expected a ${id} finding`).toBe(true);
+    const cats = new Set(result.findings.map((f) => f.category));
+    for (const cat of [
+      "tool-poisoning",
+      "command-injection",
+      "ssrf",
+      "path-traversal",
+      "secret-exposure",
+      "excessive-scope",
+    ]) {
+      expect(cats.has(cat as any), `expected a ${cat} finding`).toBe(true);
     }
+    // Every finding carries a valid OWASP MCP Top 10 mapping.
+    expect(result.findings.every((f) => /^MCP(0[1-9]|10)$/.test(f.owasp))).toBe(true);
     expect(result.errors).toHaveLength(0);
   }, 30000);
 

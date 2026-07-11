@@ -20,9 +20,11 @@ const IMPERATIVE_PATTERNS: ReadonlyArray<{ rule: string; regex: RegExp; detail: 
     detail: "Attempts to override prior/system instructions.",
   },
   {
+    // Require a SENSITIVE object, not merely "a url" — legitimate upload/fetch
+    // tools describe sending to a URL; only sending secrets/data is exfiltration.
     rule: "exfiltration-directive",
-    regex: /\b(send|post|upload|exfiltrate|forward|transmit|leak)\b[^.!?\n]{0,50}\b(to|http|https|url|endpoint|webhook|\.com|api key|token|secret|password|credential|env|environment)\b/i,
-    detail: "Directs the assistant to send data to an external destination.",
+    regex: /\b(send|post|upload|exfiltrate|forward|transmit|leak|email|share)\b[^.!?\n]{0,60}\b(api[- ]?keys?|tokens?|secrets?|passwords?|credentials?|private key|\.env|env(ironment)? vars?|session|cookies?|message history|messages|contacts?|conversation|the user'?s? (data|key|token|secret|info))\b/i,
+    detail: "Directs the assistant to send sensitive data to an external destination.",
   },
   {
     rule: "hidden-directive",

@@ -1,16 +1,17 @@
 import type { Check, Finding, ScanContext } from "../types.js";
 
-/** MCP01 — Missing / broken authentication (http targets). */
-export const mcp01Auth: Check = {
-  id: "MCP01",
-  name: "Missing / broken authentication",
+/** Authentication — maps to OWASP MCP07 (Insufficient Authentication & Authorization). */
+export const authnCheck: Check = {
+  id: "authn",
+  name: "Insufficient authentication",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
-    if (ctx.transport.kind !== "http") return findings; // stdio is local-process, auth N/A
+    if (ctx.transport.kind !== "http") return findings;
 
     if (ctx.transport.unauthenticatedHandshakeSucceeded && !ctx.transport.authRequired) {
       findings.push({
-        checkId: "MCP01",
+        category: "authn",
+        owasp: "MCP07",
         rule: "no-authentication",
         severity: "critical",
         title: "Server accepts unauthenticated connections",

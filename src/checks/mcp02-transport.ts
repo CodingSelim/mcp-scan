@@ -2,9 +2,9 @@ import type { Check, Finding, ScanContext } from "../types.js";
 
 const LOOPBACK_RE = /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/i;
 
-/** MCP02 — Insecure transport (plaintext http to a non-loopback host). */
-export const mcp02Transport: Check = {
-  id: "MCP02",
+/** Transport security — maps to OWASP MCP01 (tokens/secrets exposed in cleartext transit). */
+export const transportCheck: Check = {
+  id: "transport",
   name: "Insecure transport",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
@@ -19,7 +19,8 @@ export const mcp02Transport: Check = {
 
     if (url.protocol === "http:" && !LOOPBACK_RE.test(url.hostname)) {
       findings.push({
-        checkId: "MCP02",
+        category: "transport",
+        owasp: "MCP01",
         rule: "plaintext-transport",
         severity: "high",
         title: "Server reachable over plaintext HTTP",

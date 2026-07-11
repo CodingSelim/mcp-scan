@@ -4,13 +4,9 @@ import { extractParams } from "../detectors/schema.js";
 const DESTRUCTIVE_RE = /\b(delete|remove|destroy|drop|wipe|erase|purge|truncate|revoke|kill|terminate|shutdown|format|overwrite|transfer|withdraw|send (money|funds|payment))\b/i;
 const WRITE_RE = /\b(write|create|update|modify|edit|upload|push|deploy|install|grant|approve|pay|charge)\b/i;
 
-/**
- * MCP08 — Excessive tool permissions.
- * Flags tools whose name/description imply destructive or state-changing
- * actions, which should carry human-in-the-loop confirmation.
- */
-export const mcp08Permissions: Check = {
-  id: "MCP08",
+/** Excessive tool permissions — OWASP MCP02 (Privilege Escalation via Scope Creep). */
+export const excessiveScopeCheck: Check = {
+  id: "excessive-scope",
   name: "Excessive tool permissions",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
@@ -24,7 +20,8 @@ export const mcp08Permissions: Check = {
       const paramCount = extractParams(tool.inputSchema).length;
 
       findings.push({
-        checkId: "MCP08",
+        category: "excessive-scope",
+        owasp: "MCP02",
         rule: destructive ? "destructive-tool" : "state-changing-tool",
         severity: destructive ? "high" : "low",
         title: `Tool '${tool.name}' performs ${destructive ? "destructive" : "state-changing"} actions`,

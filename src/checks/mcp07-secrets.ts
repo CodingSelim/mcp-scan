@@ -1,15 +1,9 @@
 import type { Check, Finding, ScanContext } from "../types.js";
 import { detectSecrets } from "../detectors/secrets.js";
 
-/**
- * MCP07 — Sensitive data / secret leakage.
- * Scans server-advertised text (instructions, descriptions, server metadata)
- * for exposed secrets. Live resource/tool-output content is scanned by the
- * scanner when --probe is enabled (see connect.ts), and passed in here via
- * the resource descriptions channel.
- */
-export const mcp07Secrets: Check = {
-  id: "MCP07",
+/** Secret leakage — OWASP MCP01 (Token Mismanagement & Secret Exposure). */
+export const secretExposureCheck: Check = {
+  id: "secret-exposure",
   name: "Sensitive data / secret leakage",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
@@ -26,7 +20,8 @@ export const mcp07Secrets: Check = {
       if (!blob.text) continue;
       for (const secret of detectSecrets(blob.text)) {
         findings.push({
-          checkId: "MCP07",
+          category: "secret-exposure",
+          owasp: "MCP01",
           rule: "exposed-secret",
           severity: secret.kind === "High-Entropy String" ? "medium" : "critical",
           title: `Possible ${secret.kind} exposed in ${blob.location}`,

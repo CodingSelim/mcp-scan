@@ -32,7 +32,7 @@
     "prompt-injection",
     "sarif"
   ],
-  "author": "",
+  "author": "selimakl.inbox@gmail.com",
   "license": "MIT",
   "engines": {
     "node": ">=18"
