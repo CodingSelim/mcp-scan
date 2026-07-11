@@ -1,0 +1,19 @@
+{
+  "name": "mcp-scan",
+  "description": "Security tooling for MCP: audit any MCP server against the OWASP MCP Top 10.",
+  "owner": {
+    "name": "CodingSelim"
+  },
+  "plugins": [
+    {
+      "name": "mcp-scan",
+      "source": "./plugins/mcp-scan",
+      "description": "Audit MCP servers against the OWASP MCP Top 10 from inside your agent. Bundles the mcp-scan MCP server so Claude can scan any MCP server before you trust it.",
+      "version": "0.2.0",
+      "author": { "name": "CodingSelim" },
+      "homepage": "https://github.com/CodingSelim/mcp-scan",
+      "license": "MIT",
+      "keywords": ["mcp", "security", "owasp", "scanner", "audit"]
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "mcp-scan": {
+      "command": "npx",
+      "args": ["-y", "mcp-scan", "--serve"]
+    }
+  }
+}

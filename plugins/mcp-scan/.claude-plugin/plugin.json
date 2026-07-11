@@ -1,0 +1,9 @@
+{
+  "name": "mcp-scan",
+  "description": "Audit MCP servers against the OWASP MCP Top 10. Bundles the mcp-scan MCP server so Claude can scan any MCP server (stdio or HTTP) and get a graded A-F report before you trust it.",
+  "version": "0.2.0",
+  "author": { "name": "CodingSelim" },
+  "homepage": "https://github.com/CodingSelim/mcp-scan",
+  "license": "MIT",
+  "keywords": ["mcp", "security", "owasp", "scanner", "audit", "prompt-injection"]
+}

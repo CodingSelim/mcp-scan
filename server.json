@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.codingselim/mcp-scan",
+  "title": "mcp-scan",
+  "description": "Security scanner for MCP servers. Audits a running server against the OWASP MCP Top 10 and returns a graded A-F report. Passive: it enumerates advertised tools/prompts/resources and analyzes them statically, never invoking tools.",
+  "version": "0.2.0",
+  "repository": {
+    "url": "https://github.com/CodingSelim/mcp-scan",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/CodingSelim/mcp-scan",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "mcp-scan",
+      "version": "0.2.0",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "packageArguments": [
+        { "type": "positional", "value": "--serve" }
+      ]
+    }
+  ]
+}
