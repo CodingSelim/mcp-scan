@@ -26,7 +26,7 @@ export interface HttpTarget {
 
 export type Target = StdioTarget | HttpTarget;
 
-const CLIENT_INFO = { name: "mcp-scan", version: "0.1.0" };
+const CLIENT_INFO = { name: "mcp-scan", version: "0.2.0" };
 
 async function collect(client: Client) {
   const safe = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {

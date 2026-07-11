@@ -59,7 +59,11 @@ export type CheckCategory =
   | "ssrf"
   | "path-traversal"
   | "secret-exposure"
-  | "excessive-scope";
+  | "excessive-scope"
+  | "toxic-flow"
+  | "tool-shadowing"
+  | "supply-chain"
+  | "telemetry";
 
 export interface Finding {
   /** Scanner check family, e.g. "tool-poisoning". */

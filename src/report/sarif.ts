@@ -65,8 +65,8 @@ export function renderSarif(result: ScanResult): string {
         tool: {
           driver: {
             name: "mcp-scan",
-            version: "0.1.0",
-            informationUri: "https://github.com/your-org/mcp-scan",
+            version: "0.2.0",
+            informationUri: "https://github.com/CodingSelim/mcp-scan",
             rules,
           },
         },

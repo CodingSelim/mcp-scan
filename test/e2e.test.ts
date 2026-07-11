@@ -23,6 +23,8 @@ describe("end-to-end scan against live stdio servers", () => {
       "path-traversal",
       "secret-exposure",
       "excessive-scope",
+      "toxic-flow",
+      "tool-shadowing",
     ]) {
       expect(cats.has(cat as any), `expected a ${cat} finding`).toBe(true);
     }

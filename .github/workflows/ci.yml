@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: build & test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["18", "20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  self-scan:
+    name: dogfood — scan a real MCP server
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      # Scan a real published server and emit SARIF. --fail-on none keeps the
+      # job green; the SARIF upload surfaces findings in the Security tab.
+      - name: Scan @modelcontextprotocol/server-filesystem
+        run: node dist/cli.js --stdio "npx -y @modelcontextprotocol/server-filesystem ." --format sarif --output mcp.sarif --fail-on none
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: mcp.sarif
+          category: mcp-scan
+        continue-on-error: true

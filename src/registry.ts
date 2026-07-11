@@ -7,14 +7,22 @@ import { ssrfCheck } from "./checks/mcp05-ssrf.js";
 import { pathTraversalCheck } from "./checks/mcp06-resource-access.js";
 import { secretExposureCheck } from "./checks/mcp07-secrets.js";
 import { excessiveScopeCheck } from "./checks/mcp08-permissions.js";
+import { toxicFlowCheck } from "./checks/mcp10-toxic-flow.js";
+import { toolShadowingCheck } from "./checks/mcp09-shadowing.js";
+import { supplyChainCheck } from "./checks/mcp04-supply-chain.js";
+import { telemetryCheck } from "./checks/mcp08-telemetry.js";
 
 export const ALL_CHECKS: readonly Check[] = [
   secretExposureCheck,
   excessiveScopeCheck,
   toolPoisoningCheck,
+  toolShadowingCheck,
   commandInjectionCheck,
   ssrfCheck,
   pathTraversalCheck,
+  toxicFlowCheck,
+  supplyChainCheck,
+  telemetryCheck,
   authnCheck,
   transportCheck,
 ];

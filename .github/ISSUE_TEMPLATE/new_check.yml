@@ -1,0 +1,38 @@
+name: New check / detection idea
+description: Propose a new OWASP MCP Top 10 detection or heuristic
+labels: [enhancement, check]
+body:
+  - type: textarea
+    id: attack
+    attributes:
+      label: What attack / weakness should it catch?
+      description: Describe the MCP-specific risk and, ideally, a real example.
+    validations:
+      required: true
+  - type: dropdown
+    id: owasp
+    attributes:
+      label: OWASP MCP Top 10 category
+      options:
+        - MCP01 — Token Mismanagement & Secret Exposure
+        - MCP02 — Privilege Escalation via Scope Creep
+        - MCP03 — Tool Poisoning
+        - MCP04 — Software Supply Chain Attacks
+        - MCP05 — Command Injection & Execution
+        - MCP06 — Prompt Injection via Contextual Payloads
+        - MCP07 — Insufficient Authentication & Authorization
+        - MCP08 — Lack of Audit and Telemetry
+        - MCP09 — Shadow MCP Servers
+        - MCP10 — Context Injection & Over-Sharing
+    validations:
+      required: true
+  - type: textarea
+    id: signal
+    attributes:
+      label: What advertised metadata reveals it?
+      description: mcp-scan is passive — it can only read tool/prompt/resource metadata, schemas, instructions, and transport facts.
+  - type: textarea
+    id: fp
+    attributes:
+      label: False-positive profile
+      description: What legitimate servers might look similar, and how would you avoid flagging them?
