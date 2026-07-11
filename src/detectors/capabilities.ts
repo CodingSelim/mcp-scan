@@ -1,21 +1,15 @@
 /**
- * Capability classification for the "lethal trifecta" analysis.
+ * Capability classification for the "lethal trifecta" analysis (Simon
+ * Willison's framing): an agent is exploitable when one trust boundary
+ * combines access to private data, exposure to untrusted content, and the
+ * ability to exfiltrate externally. An MCP server aggregates many tools
+ * behind one boundary, so we classify each tool and roll them up.
  *
- * Simon Willison's framing: an agent becomes exploitable when a single
- * trust boundary combines three powers —
- *   1. access to PRIVATE data,
- *   2. exposure to UNTRUSTED content (a prompt-injection carrier), and
- *   3. the ability to EXFILTRATE externally.
- *
- * A prompt injection hidden in untrusted content can then drive the agent
- * to read private data and ship it out, with no further compromise. MCP
- * servers aggregate many tools behind one boundary, so we classify each
- * tool and roll the capabilities up to the server.
- *
- * This is deliberately capability-shaped, not keyword-soup: local file
- * writes are NOT exfiltration, and local file reads alone are NOT an
- * injection carrier — that distinction is what keeps a plain filesystem
- * server from tripping the trifecta while a web+data+send server does.
+ * The classification is capability-shaped rather than keyword-matched. A
+ * local file write is not exfiltration, and a local file read is not an
+ * injection carrier. That distinction is what stops a plain filesystem
+ * server from tripping the trifecta while a web-plus-data-plus-send server
+ * does.
  */
 
 import type { ToolInfo } from "../types.js";
@@ -27,9 +21,9 @@ export interface ToolCapabilities {
   readonly exfiltrates: boolean;
 }
 
-// Read verb adjacent to a private data-store, so an incidental "get your API
-// key at ..." in prose does NOT count as private-data access. Adjacency (≤24
-// chars) is what keeps a web-search "query" from masquerading as data access.
+// A read verb sitting next to a private data-store. Requiring the two within
+// 24 characters means an incidental "get your API key at ..." in prose does
+// not count as data access, and a web-search "query" does not either.
 const PRIVATE_READ =
   /\b(read|get|list|fetch|query|search|load|export|dump|show|view|find|retrieve|download|scan)\b[^.!?\n]{0,24}\b(files?|documents?|emails?|e-mails?|inbox|mailbox|messages?|dms?|chats?|contacts?|calendars?|events?|notes?|notebooks?|databases?|tables?|rows?|records?|repos?|repositor(?:y|ies)|commits?|history|conversations?|drive|sheets?|spreadsheets?|notion|jira|confluence|salesforce|customers?|invoices?|payments?|memory|knowledge base)\b/i;
 // A query param only implies private-data access when it targets a datastore.
@@ -64,8 +58,8 @@ function classify(tool: ToolInfo): ToolCapabilities {
     (UNTRUSTED_VERB.test(hay) && UNTRUSTED_NOUN.test(hay)) ||
     hasUrlParam; // an arbitrary-URL fetch is the canonical injection carrier
 
-  // External exfiltration: an explicit send to a network destination, OR an
-  // arbitrary-URL fetch (data can ride out in the query string of a GET).
+  // External exfiltration: an explicit send to a network destination, or an
+  // arbitrary-URL fetch, since data can ride out in the query string of a GET.
   const exfiltrates =
     (SEND_VERB.test(hay) && (EXTERNAL_NOUN.test(hay) || hasUrlParam)) ||
     (hasUrlParam && UNTRUSTED_VERB.test(hay));

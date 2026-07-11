@@ -57,9 +57,10 @@ export function shannonEntropy(input: string): number {
   return entropy;
 }
 
-// A credential is drawn from a machine charset (base64/hex/url-safe). Natural
-// language — especially CJK/other non-Latin scripts — is also high-entropy per
-// char but is NOT a secret, so require the token to be secret-shaped first.
+// A credential is drawn from a machine charset (base64, hex, or url-safe).
+// Natural language, especially CJK and other non-Latin scripts, is also
+// high-entropy per character but is not a secret, so require a secret-shaped
+// token first.
 const SECRET_CHARSET = /^[A-Za-z0-9_\-./+=~]+$/;
 
 /** A long, high-entropy, machine-charset token is a likely secret even without a known prefix. */

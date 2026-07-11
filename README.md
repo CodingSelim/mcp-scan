@@ -50,13 +50,13 @@ Actual output against 12 popular npm servers (snapshot 2026-07-11, [full benchma
 | `@modelcontextprotocol/server-sequential-thinking` | 1 | **A** | 0 | 0 | 0 | clean ✓ |
 | `@kazuph/mcp-fetch` | 1 | **A** | 0 | 0 | 0 | clean ✓ |
 
-9 of 12 flagged, 3 clean. It grades real risk instead of failing everything — and every row above
+9 of 12 flagged, 3 clean. It grades real risk instead of failing everything, and every row above
 was [audited finding-by-finding](./docs/BENCHMARK.md#precision-what-we-deliberately-do-not-flag) to
 strip false positives rather than pad the table.
 
 ## What it checks
 
-**Complete coverage of the [OWASP MCP Top 10 (2025)](https://owasp.org/www-project-mcp-top-10/)** — all ten categories, 12 checks:
+**Complete coverage of the [OWASP MCP Top 10 (2025)](https://owasp.org/www-project-mcp-top-10/)**, all ten categories, 12 checks:
 
 | Check | OWASP | Catches |
 |---|---|---|
@@ -72,11 +72,11 @@ strip false positives rather than pad the table.
 | `tool-poisoning` (dynamic) | MCP06 | Injection in resource contents and server instructions |
 | `authn` | MCP07 | HTTP servers that complete an unauthenticated handshake |
 | `telemetry` | MCP08 | High-impact tools with no protocol-level audit trail (advisory, unscored) |
-| `toxic-flow` | MCP10 | The **lethal trifecta** — one server that reads private data, ingests untrusted content, and can exfiltrate externally |
+| `toxic-flow` | MCP10 | The **lethal trifecta**: one server that reads private data, ingests untrusted content, and can exfiltrate externally |
 
 The **`toxic-flow`** check is the standout: it reasons across the whole toolset, not tool-by-tool. A
 prompt injection hidden in untrusted content can weaponize a server that also holds private-data
-access and an external send — the documented GitHub-MCP / email-agent attack shape. mcp-scan rolls
+access and an external send, the documented GitHub-MCP and email-agent attack shape. mcp-scan rolls
 each tool's capabilities up to the server and flags that combination.
 
 Each check runs in isolation, so one failure never aborts the scan, and every finding ships with a

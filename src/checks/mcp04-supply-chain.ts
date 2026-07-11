@@ -1,19 +1,19 @@
 import type { Check, Finding, ScanContext } from "../types.js";
 
-// Version strings that are absent, mutable, or a placeholder — nothing you
-// can pin or verify against a registry artifact.
+// Version strings that are absent, mutable, or a placeholder, so there is
+// nothing you can pin or verify against a registry artifact.
 const UNPINNED_VERSION = /^(|0\.0\.0|latest|dev|development|unknown|snapshot|nightly|main|master)$/i;
-// Non-ASCII letters in a server name: a classic homoglyph impersonation trick
-// (e.g. Cyrillic 'а' standing in for Latin 'a').
+// A non-ASCII letter in a server name is a classic homoglyph impersonation
+// trick, such as a Cyrillic 'а' standing in for a Latin 'a'.
 const NON_ASCII_LETTER = /[^\x00-\x7F]/;
 
 /**
- * Supply-chain & integrity signals — OWASP MCP04.
+ * Supply-chain and integrity signals (OWASP MCP04).
  *
- * A passive scanner can't verify a package registry, but the server's own
- * self-reported identity carries integrity signals: an unpinned/placeholder
- * version can't be pinned or verified, and a homoglyph in the server name is
- * a hallmark of a shadow / impersonation server.
+ * A passive scanner cannot verify a package registry, but the server's own
+ * self-reported identity still carries integrity signals. An unpinned or
+ * placeholder version cannot be pinned or verified, and a homoglyph in the
+ * server name is a hallmark of a shadow or impersonation server.
  */
 export const supplyChainCheck: Check = {
   id: "supply-chain",

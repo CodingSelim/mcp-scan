@@ -1,7 +1,7 @@
 import type { Check, Finding, ScanContext } from "../types.js";
 import { detectSecrets } from "../detectors/secrets.js";
 
-/** Secret leakage — OWASP MCP01 (Token Mismanagement & Secret Exposure). */
+/** Secret leakage (OWASP MCP01, Token Mismanagement & Secret Exposure). */
 export const secretExposureCheck: Check = {
   id: "secret-exposure",
   name: "Sensitive data / secret leakage",

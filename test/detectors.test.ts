@@ -18,9 +18,9 @@ describe("secrets detector", () => {
   });
 
   it("flags additional provider tokens and connection strings", () => {
-    const kinds = (s) => detectSecrets(s).map((h) => h.kind);
-    // Assembled at runtime so no complete token literal lives in source
-    // (which would trip secret scanners — these are fabricated test values).
+    const kinds = (s: string) => detectSecrets(s).map((h) => h.kind);
+    // Assembled at runtime so no complete token literal lives in source, which
+    // would trip secret scanners. These are fabricated test values.
     const body = "a".repeat(40);
     expect(kinds("token " + "glpat-" + body)).toContain("GitLab Token");
     expect(kinds("npm" + "_" + body.slice(0, 36))).toContain("npm Token");

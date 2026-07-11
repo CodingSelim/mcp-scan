@@ -1,6 +1,6 @@
 import type { Check, Finding, ScanContext } from "../types.js";
 
-/** Authentication — maps to OWASP MCP07 (Insufficient Authentication & Authorization). */
+/** Authentication check, mapped to OWASP MCP07 (Insufficient Authentication & Authorization). */
 export const authnCheck: Check = {
   id: "authn",
   name: "Insufficient authentication",

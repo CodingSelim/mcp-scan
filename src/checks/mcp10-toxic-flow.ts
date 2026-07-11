@@ -8,14 +8,14 @@ const fmt = (names: string[]): string =>
     : `${names.slice(0, MAX_LIST).join(", ")} +${names.length - MAX_LIST} more`;
 
 /**
- * Toxic agent flows — OWASP MCP10 (Context Injection & Over-Sharing).
+ * Toxic agent flows (OWASP MCP10, Context Injection & Over-Sharing).
  *
- * Aggregates each tool's capabilities to the server and flags the
- * "lethal trifecta": a single server that can read private data, ingest
- * untrusted content, AND send data to an external destination. That
- * combination lets a prompt injection buried in ingested content coerce
- * the agent into exfiltrating private data — the documented GitHub-MCP
- * and email-agent attack pattern — with no code-level compromise.
+ * Rolls each tool's capabilities up to the server and flags the "lethal
+ * trifecta": one server that can read private data, ingest untrusted content,
+ * and send data to an external destination. That combination lets a prompt
+ * injection hidden in ingested content coerce the agent into exfiltrating
+ * private data with no code-level compromise. It is the pattern behind the
+ * documented GitHub-MCP and email-agent incidents.
  */
 export const toxicFlowCheck: Check = {
   id: "toxic-flow",
@@ -32,8 +32,9 @@ export const toxicFlowCheck: Check = {
       hasExfil ? `exfiltrates externally (${fmt(exfiltrates)})` : null,
     ].filter(Boolean) as string[];
 
-    // Full trifecta → critical. Data + a way out (no clear injection carrier)
-    // → high. Untrusted + a way out (no clear private source) → medium SSRF-shaped risk.
+    // The full trifecta is critical. Private data plus a way out (but no clear
+    // injection carrier) is high. Untrusted input plus a way out (but no clear
+    // private source) is a medium, SSRF-shaped risk.
     if (hasPrivate && hasUntrusted && hasExfil) {
       return [
         {

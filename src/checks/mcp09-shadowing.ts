@@ -1,21 +1,20 @@
 import type { Check, Finding, ScanContext } from "../types.js";
 
-// A tool instructing the agent to run before/around ALL other tools — a
-// "call me first" interceptor. Kept strict so ordinary routing guidance
-// ("use scrape for a page, crawl for a site") does not trip it; only an
-// explicit precedence-over-other-tools directive matches.
+// A tool instructing the agent to run ahead of every other tool, a
+// "call me first" interceptor. Kept strict so ordinary routing guidance like
+// "use scrape for a page, crawl for a site" does not trip it.
 const PRECEDENCE_RE =
   /\b(before (using|calling|invoking) (any )?(other )?(tool|function|tools)|prior to (calling|using|invoking) (any )?(other )?tools?|(call|use|run|invoke) this (tool )?first,? before (any )?(other )?tools?|must (run|be called|be used) (first )?before (any )?(other )?tools?)\b/i;
 
 /**
- * Tool shadowing & name collision — OWASP MCP03 / MCP09.
+ * Tool shadowing and name collision (OWASP MCP03 / MCP09).
  *
  * All tool descriptions share the model's context, so a tool can reach past
- * its own boundary two ways: collide on a trusted tool's NAME to shadow it,
- * or instruct the agent to invoke it ahead of every other tool. (Hidden
- * imperative directives — the other half of tool poisoning — are caught by
- * the tool-poisoning check.) These two signals are objective and low-noise;
- * we deliberately do NOT flag benign "use A for X, B for Y" routing guidance.
+ * its own boundary in two ways: collide on a trusted tool's name to shadow it,
+ * or instruct the agent to invoke it ahead of every other tool. (The other
+ * half of tool poisoning, hidden imperative directives, is handled by the
+ * tool-poisoning check.) Both signals here are objective and low-noise, and we
+ * intentionally leave benign "use A for X, B for Y" routing guidance alone.
  */
 export const toolShadowingCheck: Check = {
   id: "tool-shadowing",
@@ -23,7 +22,7 @@ export const toolShadowingCheck: Check = {
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
 
-    // 1. Name collisions — two tools advertising the same name.
+    // Name collisions: two tools advertising the same name.
     const counts = new Map<string, number>();
     for (const t of ctx.tools) counts.set(t.name, (counts.get(t.name) ?? 0) + 1);
     for (const [name, count] of counts) {
@@ -34,7 +33,7 @@ export const toolShadowingCheck: Check = {
           rule: "duplicate-tool-name",
           severity: "high",
           title: `Duplicate tool name '${name}'`,
-          description: `Two or more tools advertise the name '${name}'. Whichever the client binds last shadows the others, so a benign name can be silently overridden — the core of a shadow-server / tool-collision attack.`,
+          description: `Two or more tools advertise the name '${name}'. Whichever the client binds last shadows the others, so a benign name can be silently overridden. This is the core of a shadow-server or tool-collision attack.`,
           location: `tool:${name}`,
           remediation:
             "Ensure tool names are unique. Pin trusted servers and alert when a tool's definition changes between sessions (rug-pull detection).",
@@ -43,7 +42,7 @@ export const toolShadowingCheck: Check = {
       }
     }
 
-    // 2. Precedence injection — a tool inserting itself ahead of all others.
+    // Precedence injection: a tool inserting itself ahead of all others.
     for (const tool of ctx.tools) {
       const desc = tool.description ?? "";
       if (desc && PRECEDENCE_RE.test(desc)) {
@@ -54,7 +53,7 @@ export const toolShadowingCheck: Check = {
           severity: "medium",
           title: `Tool '${tool.name}' instructs the agent to run it before other tools`,
           description:
-            "This description tells the model to call this tool ahead of every other tool. A 'call me first' tool can intercept context and arguments intended for legitimate tools — a shadowing vector even when the intent is benign (e.g. a mandatory auth step).",
+            "This description tells the model to call this tool ahead of every other tool. A 'call me first' tool can intercept context and arguments intended for legitimate tools. That is a shadowing vector even when the intent is benign, such as a mandatory auth step.",
           location: `tool:${tool.name}`,
           remediation:
             "Tool ordering is the client's responsibility; remove precedence directives from descriptions. If a setup step is genuinely required, enforce it server-side, not via model instructions.",

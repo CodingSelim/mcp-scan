@@ -16,7 +16,7 @@ const SEVERITY_BY_RULE: Record<string, Finding["severity"]> = {
 const OWASP_BY_SURFACE = (location: string): OwaspMcpId =>
   location.startsWith("tool:") || location.startsWith("prompt:") ? "MCP03" : "MCP06";
 
-/** Tool poisoning / prompt injection — OWASP MCP03 & MCP06. */
+/** Tool poisoning and prompt injection (OWASP MCP03 and MCP06). */
 export const toolPoisoningCheck: Check = {
   id: "tool-poisoning",
   name: "Tool poisoning / description injection",

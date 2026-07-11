@@ -4,7 +4,7 @@ import { extractParams } from "../detectors/schema.js";
 const DESTRUCTIVE_RE = /\b(delete|remove|destroy|drop|wipe|erase|purge|truncate|revoke|kill|terminate|shutdown|format|overwrite|transfer|withdraw|send (money|funds|payment))\b/i;
 const WRITE_RE = /\b(write|create|update|modify|edit|upload|push|deploy|install|grant|approve|pay|charge)\b/i;
 
-/** Excessive tool permissions — OWASP MCP02 (Privilege Escalation via Scope Creep). */
+/** Excessive tool permissions (OWASP MCP02, Privilege Escalation via Scope Creep). */
 export const excessiveScopeCheck: Check = {
   id: "excessive-scope",
   name: "Excessive tool permissions",

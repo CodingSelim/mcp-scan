@@ -6,7 +6,7 @@ import {
   descriptionSuggestsExec,
 } from "../detectors/schema.js";
 
-/** Command / code injection — OWASP MCP05 (Command Injection & Execution). */
+/** Command and code injection surface (OWASP MCP05, Command Injection & Execution). */
 export const commandInjectionCheck: Check = {
   id: "command-injection",
   name: "Command / code injection surface",

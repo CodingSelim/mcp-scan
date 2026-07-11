@@ -2,7 +2,7 @@ import type { Check, Finding, ScanContext } from "../types.js";
 
 const LOOPBACK_RE = /^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/i;
 
-/** Transport security — maps to OWASP MCP01 (tokens/secrets exposed in cleartext transit). */
+/** Transport security, mapped to OWASP MCP01 (tokens and secrets exposed in cleartext transit). */
 export const transportCheck: Check = {
   id: "transport",
   name: "Insecure transport",

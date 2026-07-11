@@ -4,14 +4,14 @@ const HIGH_IMPACT =
   /\b(delete|remove|destroy|drop|wipe|erase|purge|truncate|revoke|kill|terminate|shutdown|format|overwrite|transfer|withdraw|deploy|install|execute|run|shell|exec|send|post|upload|publish|pay|charge|grant)\b/i;
 
 /**
- * Audit & telemetry gap — OWASP MCP08 (Lack of Audit and Telemetry).
+ * Audit and telemetry gap (OWASP MCP08, Lack of Audit and Telemetry).
  *
- * The MCP protocol defines no standard per-call audit trail, so a scanner
- * cannot passively confirm whether tool invocations are logged. What it CAN
- * confirm is exposure: when a server offers high-impact tools (destructive,
- * state-changing, code-executing, or externally-sending), those actions are
- * unattributable after the fact unless the operator adds logging out-of-band.
- * Reported as advisory (info, unscored) — it flags a gap to verify, not a
+ * MCP defines no standard per-call audit trail, so a scanner cannot passively
+ * confirm whether tool invocations are logged. What it can confirm is exposure:
+ * when a server offers high-impact tools (destructive, state-changing,
+ * code-executing, or externally-sending), those actions are unattributable
+ * after the fact unless the operator adds logging out of band. This is
+ * reported as advisory (info, unscored): it flags a gap to verify, not a
  * proven defect.
  */
 export const telemetryCheck: Check = {

@@ -1,7 +1,7 @@
 # Contributing to mcp-scan
 
 Thanks for helping make MCP servers safer. This project values **precise,
-low-false-positive detection** above raw coverage — a scanner is only useful
+low-false-positive detection** above raw coverage. A scanner is only useful
 if its findings are trusted.
 
 ## Setup
@@ -20,16 +20,16 @@ run `npm run build && npm test` before opening a PR.
 
 Data flows: **connect → build `ScanContext` → run checks → score → render.**
 
-- `src/checks/*` — one file per check. A check is **pure and isolated**: it
+- `src/checks/*`: one file per check. A check is **pure and isolated**: it
   takes a `ScanContext` and returns `Finding[]`, never mutating the context or
   depending on another check. `runChecks` catches throws per-check.
-- `src/detectors/*` — reusable heuristics (`secrets`, `injection`, `schema`,
+- `src/detectors/*`: reusable heuristics (`secrets`, `injection`, `schema`,
   `capabilities`). Prefer extending a detector over inlining regexes in checks.
-- `src/types.ts` — the source of truth for `Finding`, `ScanContext`,
+- `src/types.ts`: the source of truth for `Finding`, `ScanContext`,
   `CheckCategory`, `OwaspMcpId`, and the `OWASP_TITLES` map.
 
 `category` (scanner check family) and `owasp` (official OWASP MCP Top 10 id)
-are **distinct** — never reuse one as the other.
+are **distinct**, so never reuse one as the other.
 
 ## Adding a check
 

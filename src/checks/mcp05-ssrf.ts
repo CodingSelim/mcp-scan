@@ -3,7 +3,7 @@ import { extractParams, isUrlParam } from "../detectors/schema.js";
 
 const ALLOWLIST_HINT_RE = /\b(allow ?list|allowed (hosts?|domains?)|whitelist|must (start|begin) with|only .*(https?:\/\/|domain))\b/i;
 
-/** SSRF surface — OWASP MCP05 (untrusted-input-driven server request / execution). */
+/** SSRF surface (OWASP MCP05, untrusted-input-driven server requests). */
 export const ssrfCheck: Check = {
   id: "ssrf",
   name: "Server-side request forgery (SSRF) surface",
@@ -27,7 +27,7 @@ export const ssrfCheck: Check = {
         rule: "unrestricted-url-fetch",
         severity: "high",
         title: `Tool '${tool.name}' fetches a caller-supplied URL`,
-        description: `Parameter(s) '${names}' accept an arbitrary URL/host with no visible allowlist or format constraint. The server can be coerced into requesting internal addresses (169.254.169.254 metadata, localhost admin ports, RFC1918 hosts) — classic SSRF.`,
+        description: `Parameter(s) '${names}' accept an arbitrary URL or host with no visible allowlist or format constraint. The server can be coerced into requesting internal addresses such as 169.254.169.254 metadata, localhost admin ports, or RFC1918 hosts. This is classic SSRF.`,
         location: `tool:${tool.name}`,
         remediation:
           "Validate the resolved IP against a denylist of internal/link-local ranges, enforce an allowlist of permitted hosts/schemes, and disable redirects to private ranges.",

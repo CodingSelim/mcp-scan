@@ -24,7 +24,7 @@ function sevTag(sev: Severity): string {
 export function renderConsole(result: ScanResult): string {
   const lines: string[] = [];
   lines.push("");
-  lines.push(pc.bold(pc.white("  mcp-scan — MCP Security Report")));
+  lines.push(pc.bold(pc.white("  mcp-scan: MCP Security Report")));
   lines.push(pc.gray(`  Target: ${result.target}`));
   if (result.serverInfo?.name) {
     lines.push(pc.gray(`  Server: ${result.serverInfo.name} ${result.serverInfo.version ?? ""}`));

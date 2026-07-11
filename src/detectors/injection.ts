@@ -20,8 +20,9 @@ const IMPERATIVE_PATTERNS: ReadonlyArray<{ rule: string; regex: RegExp; detail: 
     detail: "Attempts to override prior/system instructions.",
   },
   {
-    // Require a SENSITIVE object, not merely "a url" — legitimate upload/fetch
-    // tools describe sending to a URL; only sending secrets/data is exfiltration.
+    // Require a sensitive object, not merely "a url". Legitimate upload and
+    // fetch tools describe sending to a URL; only sending secrets or data is
+    // exfiltration.
     rule: "exfiltration-directive",
     regex: /\b(send|post|upload|exfiltrate|forward|transmit|leak|email|share)\b[^.!?\n]{0,60}\b(api[- ]?keys?|tokens?|secrets?|passwords?|credentials?|private key|\.env|env(ironment)? vars?|session|cookies?|message history|messages|contacts?|conversation|the user'?s? (data|key|token|secret|info))\b/i,
     detail: "Directs the assistant to send sensitive data to an external destination.",
@@ -45,7 +46,7 @@ const IMPERATIVE_PATTERNS: ReadonlyArray<{ rule: string; regex: RegExp; detail: 
 
 // Zero-width / invisible characters commonly used to hide instructions.
 const INVISIBLE_RE = /[​-‏‪-‮⁠-⁤﻿­]/;
-// Unicode tag characters (E0000-E007F) — an established covert-instruction channel.
+// Unicode tag characters (E0000-E007F), an established covert-instruction channel.
 const UNICODE_TAG_RE = /[\u{E0000}-\u{E007F}]/u;
 
 export function detectInjection(text: string | undefined): InjectionSignal[] {

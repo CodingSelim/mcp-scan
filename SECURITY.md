@@ -12,7 +12,7 @@ a production server is safe.
 - **What it does not do:** call tools, follow URLs, read files, or execute
   anything on the target. Findings are derived only from advertised metadata.
 - **Where it runs:** for `--stdio` targets it spawns the given command as a
-  local child process. Only scan commands you trust — the child runs with your
+  local child process. Only scan commands you trust, since the child runs with your
   privileges. For `--url` targets nothing is executed locally.
 
 ## Reporting a vulnerability in mcp-scan itself

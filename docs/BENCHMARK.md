@@ -1,7 +1,7 @@
-# mcp-scan benchmark — real published servers
+# mcp-scan benchmark: real published servers
 
-These are **actual `mcp-scan` results** against popular MCP servers pulled live from npm — no
-synthetic inputs, no cherry-picking. Reproduce any row with the command shown. Every server was
+These are **actual `mcp-scan` results** against popular MCP servers pulled live from npm, with no
+synthetic inputs and no cherry-picking. Reproduce any row with the command shown. Every server was
 spawned as a real stdio MCP server and scanned end-to-end.
 
 Snapshot date: **2026-07-11**, mcp-scan **0.2.0** (package versions drift, so re-run to confirm).
@@ -17,11 +17,11 @@ Snapshot date: **2026-07-11**, mcp-scan **0.2.0** (package versions drift, so re
 | `@upstash/context7-mcp` | 2 | **D** | 0 | 2 | 0 | 0 | MCP02, MCP08 |
 | `@modelcontextprotocol/server-slack` | 8 | **C** | 0 | 1 | 0 | 0 | MCP08, **MCP10** |
 | `@browsermcp/mcp` | 12 | **C** | 0 | 1 | 0 | 0 | MCP05 |
-| `@modelcontextprotocol/server-everything` | 13 | **A** | 0 | 0 | 0 | 0 | — (clean) |
-| `@modelcontextprotocol/server-sequential-thinking` | 1 | **A** | 0 | 0 | 0 | 0 | — (clean) |
-| `@kazuph/mcp-fetch` | 1 | **A** | 0 | 0 | 0 | 0 | — (clean) |
+| `@modelcontextprotocol/server-everything` | 13 | **A** | 0 | 0 | 0 | 0 | clean |
+| `@modelcontextprotocol/server-sequential-thinking` | 1 | **A** | 0 | 0 | 0 | 0 | clean |
+| `@kazuph/mcp-fetch` | 1 | **A** | 0 | 0 | 0 | 0 | clean |
 
-**9 of 12 servers flagged; 3 graded clean.** The scanner discriminates by real risk — it is not a
+**9 of 12 servers flagged; 3 graded clean.** The scanner discriminates by real risk; it is not a
 blanket fail machine, and three widely-used servers pass cleanly.
 
 ## Headline findings
@@ -29,7 +29,7 @@ blanket fail machine, and three widely-used servers pass cleanly.
 **1. `firecrawl-mcp` combines the lethal trifecta (OWASP MCP10).** It exposes tools that read local
 data (`firecrawl_parse` takes a `filePath`), ingest untrusted web content (`firecrawl_scrape`,
 `firecrawl_crawl`, `firecrawl_search`), and reach arbitrary external URLs. A prompt injection buried
-in scraped content can drive the agent to read local data and ship it out — no code exploit needed.
+in scraped content can drive the agent to read local data and ship it out, with no code exploit needed.
 This is the same capability shape behind the 2025 GitHub-MCP and email-agent injection incidents.
 
 ```
@@ -41,7 +41,7 @@ CRITICAL  Server combines the lethal trifecta (private data + untrusted input + 
 
 **2. Model-supplied code with no schema constraint (OWASP MCP05).** Both `firecrawl-mcp`
 (`firecrawl_interact`, `code` param) and `@modelcontextprotocol/server-puppeteer`
-(`puppeteer_evaluate`, `script` param) accept free-form code/scripts that execute — a textbook
+(`puppeteer_evaluate`, `script` param) accept free-form code or scripts that execute, a textbook
 injection sink an autonomous agent can be steered into.
 
 ```
@@ -58,31 +58,31 @@ is one capability away from the full trifecta.
 ## Reproduce
 
 ```bash
-npx mcp-scan --stdio "npx -y firecrawl-mcp"                                   # F — trifecta + code exec
-npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-puppeteer"         # F — script exec
-npx mcp-scan --stdio "npx -y tavily-mcp"                                      # F — toxic flow
-npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"   # F — path params
-npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-everything"        # A — clean
+npx mcp-scan --stdio "npx -y firecrawl-mcp"                                   # F: trifecta + code exec
+npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-puppeteer"         # F: script exec
+npx mcp-scan --stdio "npx -y tavily-mcp"                                      # F: toxic flow
+npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"   # F: path params
+npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-everything"        # A: clean
 ```
 
 (Servers that gate tool *calls* behind an API key still enumerate their tool *definitions* on
-connect, which is all a passive scan reads — pass a placeholder env var where one is required.)
+connect, which is all a passive scan reads, so pass a placeholder env var where one is required.)
 
 ## Precision: what we deliberately do NOT flag
 
 A scanner is only useful if its findings are trusted, so this benchmark was audited finding-by-finding
 and several false-positive classes were removed rather than shipped for a scarier table:
 
-- **URLs and file paths** in descriptions are high-entropy but are not secrets — excluded from the
-  secret detector.
-- **Non-Latin prose** (e.g. Japanese tool descriptions) is high-entropy per character — excluded, so
-  it is no longer mistaken for a credential.
+- **URLs and file paths** in descriptions are high-entropy but are not secrets, so they are excluded
+  from the secret detector.
+- **Non-Latin prose** (for example Japanese tool descriptions) is high-entropy per character, so it
+  is excluded and no longer mistaken for a credential.
 - **Geographic `location` params** are no longer classified as filesystem paths (they were inflating
   path-traversal counts on web servers like `firecrawl`).
 - **Benign multi-tool routing guidance** ("use `crawl` instead of `scrape` for a whole site") is
   common in good documentation and is **not** treated as cross-tool poisoning. Only objective
-  signals — duplicate tool names and explicit "call me before every other tool" precedence
-  directives — trip the shadowing check.
+  signals trip the shadowing check: duplicate tool names and explicit "call me before every other
+  tool" precedence directives.
 
 ## Notes on static analysis
 

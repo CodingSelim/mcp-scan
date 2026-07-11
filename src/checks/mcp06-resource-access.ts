@@ -2,10 +2,10 @@ import type { Check, Finding, ScanContext } from "../types.js";
 import { extractParams, isPathParam } from "../detectors/schema.js";
 
 /**
- * Path traversal / unrestricted file access — OWASP MCP01: arbitrary file
- * reads expose credentials & secrets (SSH keys, .env, tokens). The single most
- * common MCP implementation flaw (Endor Labs: 82% of servers use file ops
- * prone to traversal).
+ * Path traversal and unrestricted file access (OWASP MCP01). Arbitrary file
+ * reads expose credentials and secrets such as SSH keys, .env files, and
+ * tokens. It is the most common MCP implementation flaw: Endor Labs found 82%
+ * of servers use file operations prone to traversal.
  */
 export const pathTraversalCheck: Check = {
   id: "path-traversal",

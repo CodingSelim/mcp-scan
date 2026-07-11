@@ -25,7 +25,7 @@ interface Options {
 const SEV_THRESHOLD: Record<Severity, number> = { info: 0, low: 1, medium: 2, high: 3, critical: 4 };
 
 const HELP = `
-${pc.bold("mcp-scan")} — Security scanner for Model Context Protocol servers
+${pc.bold("mcp-scan")}: Security scanner for Model Context Protocol servers
 
 ${pc.bold("USAGE")}
   mcp-scan --stdio "<command>"        Scan a local stdio MCP server

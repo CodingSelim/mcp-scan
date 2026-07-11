@@ -50,7 +50,7 @@ export const OWASP_TITLES: Record<OwaspMcpId, string> = {
   MCP10: "Context Injection & Over-Sharing",
 };
 
-/** Scanner check family — decoupled from OWASP numbering. */
+/** Scanner check family, kept decoupled from OWASP numbering. */
 export type CheckCategory =
   | "authn"
   | "transport"
