@@ -23,7 +23,7 @@ npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"
 
 ## Why
 
-MCP tool descriptions are fed straight into your model's context, and most public servers were never security-reviewed. A bad one can hide instructions in a description, expose a raw-shell tool, or leak a key — and your agent acts on it. Endor Labs found **82%** of servers prone to path traversal, **34%** to command injection.
+MCP tool descriptions are fed straight into your model's context, and most public servers were never security-reviewed. A bad one can hide instructions in a description, expose a raw-shell tool, or leak a key; and your agent acts on it. Endor Labs found **82%** of servers prone to path traversal, **34%** to command injection.
 
 **mcp-scan is the gut-check before you wire a server in.** It's passive: it reads advertised capabilities and analyzes them statically, never invoking tools, so it's safe against production servers.
 
@@ -43,7 +43,7 @@ MCP tool descriptions are fed straight into your model's context, and most publi
 | `@modelcontextprotocol/server-everything` | 13 | **A** | 0 | 0 | 0 | clean ✓ |
 | `@kazuph/mcp-fetch` | 1 | **A** | 0 | 0 | 0 | clean ✓ |
 
-**9 of 12 flagged, 3 clean** — every row audited finding-by-finding, false positives stripped rather than padded.
+**9 of 12 flagged, 3 clean**, every row audited finding-by-finding, false positives stripped rather than padded.
 
 ## Use it
 
@@ -55,7 +55,7 @@ npx mcp-scan --url https://host/mcp --header "Authorization: Bearer $TOKEN"
 npx mcp-scan --config ~/.cursor/mcp.json --format sarif --output mcp.sarif
 ```
 
-**As an MCP server** — let your agent scan servers on demand (*"scan this MCP server before I add it"*). Add to any client; this `mcpServers` shape works in Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, and Gemini CLI:
+**As an MCP server**,  let your agent scan servers on demand (*"scan this MCP server before I add it"*). Add to any client; this `mcpServers` shape works in Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, and Gemini CLI:
 
 ```json
 { "mcpServers": { "mcp-scan": { "command": "npx", "args": ["-y", "mcp-scan", "--serve"] } } }
@@ -100,7 +100,7 @@ Full **OWASP MCP Top 10 (2025)** coverage, 12 checks:
 | `telemetry` | MCP08 | High-impact tools with no audit trail (advisory, unscored) |
 | `toxic-flow` | MCP10 | **Lethal trifecta**: one server that reads private data, ingests untrusted content, and can exfiltrate |
 
-`toxic-flow` is the standout — it reasons across the whole toolset, catching the GitHub-MCP / email-agent injection shape that per-tool checks miss.
+`toxic-flow` is the standout, it reasons across the whole toolset, catching the GitHub-MCP / email-agent injection shape that per-tool checks miss.
 
 ## Output & CI
 
@@ -114,7 +114,7 @@ Full **OWASP MCP Top 10 (2025)** coverage, 12 checks:
 
 ## Notes
 
-- Static analysis can't see runtime sandboxing — a server that safely confines paths still flags them. Verify against actual enforcement.
+- Static analysis can't see runtime sandboxing, a server that safely confines paths still flags them. Verify against actual enforcement.
 - Auth and transport checks apply to HTTP targets only.
 - Heuristics favor recall; triage findings in context.
 - Scanning a stdio target spawns that command, so run it only on servers you trust.
