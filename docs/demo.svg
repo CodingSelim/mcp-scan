@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="392" viewBox="0 0 820 392" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
+  <!-- window -->
+  <rect x="0.5" y="0.5" width="819" height="391" rx="10" fill="#0d1117" stroke="#30363d"/>
+  <rect x="0.5" y="0.5" width="819" height="40" rx="10" fill="#161b22"/>
+  <rect x="0.5" y="30" width="819" height="11" fill="#161b22"/>
+  <line x1="0.5" y1="40.5" x2="819.5" y2="40.5" stroke="#30363d"/>
+  <!-- traffic lights -->
+  <circle cx="22" cy="20" r="6" fill="#ff5f56"/>
+  <circle cx="42" cy="20" r="6" fill="#ffbd2e"/>
+  <circle cx="62" cy="20" r="6" fill="#27c93f"/>
+  <text x="410" y="25" text-anchor="middle" fill="#7d8590" font-size="12.5">mcp-scan</text>
+
+  <g xml:space="preserve">
+    <!-- header -->
+    <text x="24" y="72" fill="#e6edf3"><tspan font-weight="bold">  mcp-scan</tspan><tspan fill="#7d8590"> — MCP Security Report</tspan></text>
+    <text x="24" y="93" fill="#7d8590">  Server: vulnerable-test-server 6.6.6</text>
+    <text x="24" y="112" fill="#7d8590">  Surface: 6 tools, 1 prompts, 1 resources, 1 templates</text>
+
+    <!-- severity summary -->
+    <rect x="24" y="134" width="88" height="21" rx="4" fill="#da3633"/>
+    <text x="34" y="150" fill="#ffffff" font-weight="bold">CRITICAL 5</text>
+    <text x="126" y="150"><tspan fill="#ff7b72" font-weight="bold">HIGH 10</tspan><tspan fill="#7d8590">    </tspan><tspan fill="#e3b341">MEDIUM 1</tspan><tspan fill="#7d8590">    LOW 0    INFO 0</tspan></text>
+
+    <!-- score + grade -->
+    <text x="24" y="182" fill="#e6edf3">  Risk score: <tspan font-weight="bold">100</tspan>/100     Grade:</text>
+    <rect x="284" y="167" width="24" height="21" rx="4" fill="#da3633"/>
+    <text x="296" y="182" text-anchor="middle" fill="#ffffff" font-weight="bold">F</text>
+
+    <!-- finding 01 -->
+    <text x="24" y="220"><tspan fill="#6e7681">  01  </tspan><tspan fill="#ff7b72" font-weight="bold">CRITICAL  </tspan><tspan fill="#e6edf3" font-weight="bold">Possible AWS Access Key exposed in tool:debug_info</tspan></text>
+    <text x="24" y="239"><tspan fill="#6e7681">      evidence: </tspan><tspan fill="#7d8590">AWS Access Key: AKIA…LE</tspan></text>
+    <text x="24" y="258"><tspan fill="#3fb950">      fix: </tspan><tspan fill="#7d8590">Remove secrets from descriptions/metadata; load from a secret manager.</tspan></text>
+
+    <!-- finding 05 -->
+    <text x="24" y="296"><tspan fill="#6e7681">  05  </tspan><tspan fill="#ff7b72" font-weight="bold">CRITICAL  </tspan><tspan fill="#e6edf3" font-weight="bold">Tool 'run_shell' takes an unconstrained command parameter</tspan></text>
+    <text x="24" y="315"><tspan fill="#6e7681">      evidence: </tspan><tspan fill="#7d8590">param 'command': string (unconstrained)</tspan></text>
+    <text x="24" y="334"><tspan fill="#3fb950">      fix: </tspan><tspan fill="#7d8590">Never pass model strings to a shell. Use argument arrays + an allowlist.</tspan></text>
+
+    <text x="24" y="368" fill="#6e7681">  …14 more findings across MCP01, MCP03, MCP05.  Full report: --format json | sarif</text>
+  </g>
+</svg>
