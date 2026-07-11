@@ -1,6 +1,6 @@
 {
   "name": "mcp-scan",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Security scanner for Model Context Protocol (MCP) servers — audits running servers against the OWASP MCP Top 10 and outputs console, JSON, and SARIF reports.",
   "type": "module",
   "bin": {

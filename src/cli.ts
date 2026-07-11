@@ -111,7 +111,7 @@ function shouldFail(result: ScanResult, failOn: Options["failOn"]): boolean {
 async function main(): Promise<number> {
   const opts = parseArgs(process.argv.slice(2));
   if (opts.help) { process.stdout.write(HELP + "\n"); return 0; }
-  if (opts.version) { process.stdout.write("mcp-scan 0.1.0\n"); return 0; }
+  if (opts.version) { process.stdout.write("mcp-scan 0.2.0\n"); return 0; }
 
   const targets: Array<{ name: string; target: Target }> = [];
   if (opts.config) {

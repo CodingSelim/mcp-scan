@@ -1,0 +1,38 @@
+name: Bug report
+description: A scan crashed, a check misbehaves, or output is wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you run and what went wrong?
+      placeholder: "mcp-scan --stdio \"...\"  →  ..."
+    validations:
+      required: true
+  - type: input
+    id: target
+    attributes:
+      label: Target server
+      description: The MCP server / package you scanned (if shareable)
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Issue kind
+      options:
+        - False positive (flagged something safe)
+        - False negative (missed a real issue)
+        - Crash / error
+        - Wrong severity or grade
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+  - type: input
+    id: version
+    attributes:
+      label: mcp-scan version & Node version
+      placeholder: "mcp-scan 0.2.0, node 20.x"

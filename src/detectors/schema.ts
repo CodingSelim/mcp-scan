@@ -46,7 +46,9 @@ export function extractParams(schema: unknown): ParamInfo[] {
 
 const URL_PARAM_RE = /\b(url|uri|href|endpoint|webhook|callback|host|hostname|link|address|fetch|src|target)\b/i;
 const CMD_PARAM_RE = /\b(cmd|command|exec|shell|script|bash|sh|run|eval|code|program|args?)\b/i;
-const PATH_PARAM_RE = /\b(path|file|filename|filepath|dir|directory|folder|location)\b/i;
+// Note: "location" is intentionally excluded — it is far more often a
+// geographic/URL locus than a filesystem path (false-positive magnet).
+const PATH_PARAM_RE = /\b(path|file|filename|filepath|filePath|dir|directory|folder)\b/i;
 const QUERY_PARAM_RE = /\b(query|sql|statement|filter|q)\b/i;
 
 export const isUrlParam = (p: ParamInfo): boolean => URL_PARAM_RE.test(p.name);

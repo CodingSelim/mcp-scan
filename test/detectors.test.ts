@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { detectSecrets, shannonEntropy, looksHighEntropy } from "../src/detectors/secrets.js";
 import { detectInjection } from "../src/detectors/injection.js";
 import { extractParams, isUrlParam, isCommandParam, isPathParam } from "../src/detectors/schema.js";
+import { rollupCapabilities } from "../src/detectors/capabilities.js";
 
 describe("secrets detector", () => {
   it("flags known provider tokens and redacts them", () => {
@@ -14,6 +15,17 @@ describe("secrets detector", () => {
 
   it("does not flag ordinary prose", () => {
     expect(detectSecrets("the quick brown fox jumps over the lazy dog")).toHaveLength(0);
+  });
+
+  it("flags additional provider tokens and connection strings", () => {
+    const kinds = (s) => detectSecrets(s).map((h) => h.kind);
+    // Assembled at runtime so no complete token literal lives in source
+    // (which would trip secret scanners — these are fabricated test values).
+    const body = "a".repeat(40);
+    expect(kinds("token " + "glpat-" + body)).toContain("GitLab Token");
+    expect(kinds("npm" + "_" + body.slice(0, 36))).toContain("npm Token");
+    expect(kinds("db postgres://admin:s3cretpw@db.internal:5432/app")).toContain("Database Connection String");
+    expect(kinds("hf" + "_" + body.slice(0, 36))).toContain("Hugging Face Token");
   });
 
   it("computes entropy and detects high-entropy strings", () => {
@@ -69,5 +81,25 @@ describe("schema detector", () => {
   it("handles missing schema safely", () => {
     expect(extractParams(undefined)).toEqual([]);
     expect(extractParams({})).toEqual([]);
+  });
+});
+
+describe("capability classifier", () => {
+  it("classifies read/ingest/exfil across a toolset", () => {
+    const roll = rollupCapabilities([
+      { name: "read_email", description: "Read the user's inbox" },
+      { name: "fetch", description: "Fetch a web page", inputSchema: { type: "object", properties: { url: { type: "string" } } } },
+      { name: "send_webhook", description: "Send a payload to a webhook url", inputSchema: { type: "object", properties: { url: { type: "string" } } } },
+    ]);
+    expect(roll.readsPrivate).toContain("read_email");
+    expect(roll.ingestsUntrusted).toContain("fetch");
+    expect(roll.exfiltrates.length).toBeGreaterThan(0);
+  });
+
+  it("does not mark a local file writer as exfiltration", () => {
+    const roll = rollupCapabilities([
+      { name: "write_file", description: "Write content to a local file", inputSchema: { type: "object", properties: { path: { type: "string" } } } },
+    ]);
+    expect(roll.exfiltrates).toHaveLength(0);
   });
 });
