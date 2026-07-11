@@ -8,3 +8,4 @@ export { renderConsole } from "./report/console.js";
 export { renderJson } from "./report/json.js";
 export { renderSarif } from "./report/sarif.js";
 export { computeScore, gradeFor, countBySeverity, sortFindings } from "./score.js";
+export { createScanServer, runMcpServer, renderAgentSummary } from "./mcp-server.js";

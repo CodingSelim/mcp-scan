@@ -8,6 +8,7 @@ import { parseConfigFile } from "./config.js";
 import { renderConsole } from "./report/console.js";
 import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
+import { runMcpServer } from "./mcp-server.js";
 
 interface Options {
   stdio?: string;
@@ -18,6 +19,7 @@ interface Options {
   format: "console" | "json" | "sarif";
   output?: string;
   failOn: Severity | "none";
+  serve: boolean;
   help: boolean;
   version: boolean;
 }
@@ -31,6 +33,7 @@ ${pc.bold("USAGE")}
   mcp-scan --stdio "<command>"        Scan a local stdio MCP server
   mcp-scan --url <http-url>           Scan a remote HTTP/SSE MCP server
   mcp-scan --config <path>            Scan every server in an MCP config file
+  mcp-scan --serve                    Run mcp-scan itself as an MCP server (stdio)
 
 ${pc.bold("OPTIONS")}
   --stdio <cmd>        Command to spawn (e.g. "node server.js" or "npx -y pkg")
@@ -41,6 +44,7 @@ ${pc.bold("OPTIONS")}
   --format <fmt>       console | json | sarif            (default: console)
   --output <file>      Write report to a file instead of stdout
   --fail-on <sev>      Exit non-zero at/above severity: critical|high|medium|low|none (default: high)
+  --serve              Run as an MCP server on stdio so agents can tool-call the scanner
   -h, --help           Show this help
   -v, --version        Show version
 
@@ -56,6 +60,7 @@ function parseArgs(argv: string[]): Options {
     env: {},
     format: "console",
     failOn: "high",
+    serve: false,
     help: false,
     version: false,
   };
@@ -81,6 +86,7 @@ function parseArgs(argv: string[]): Options {
       case "--format": opts.format = next() as Options["format"]; break;
       case "--output": opts.output = next(); break;
       case "--fail-on": opts.failOn = next() as Options["failOn"]; break;
+      case "serve": case "--serve": opts.serve = true; break;
       case "-h": case "--help": opts.help = true; break;
       case "-v": case "--version": opts.version = true; break;
       default:
@@ -112,6 +118,13 @@ async function main(): Promise<number> {
   const opts = parseArgs(process.argv.slice(2));
   if (opts.help) { process.stdout.write(HELP + "\n"); return 0; }
   if (opts.version) { process.stdout.write("mcp-scan 0.2.0\n"); return 0; }
+
+  // Serve mode: run mcp-scan itself as an MCP server over stdio. stdout is the
+  // JSON-RPC transport here, so nothing else may be written to it. Never resolves.
+  if (opts.serve) {
+    await runMcpServer();
+    return 0;
+  }
 
   const targets: Array<{ name: string; target: Target }> = [];
   if (opts.config) {

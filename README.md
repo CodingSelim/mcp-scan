@@ -9,7 +9,7 @@ Point it at any running MCP server. It audits the live server against the **OWAS
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen.svg)](https://nodejs.org)
 [![CI](https://github.com/CodingSelim/mcp-scan/actions/workflows/ci.yml/badge.svg)](https://github.com/CodingSelim/mcp-scan/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-42%20passing-brightgreen.svg)](#development)
+[![Tests](https://img.shields.io/badge/tests-48%20passing-brightgreen.svg)](#development)
 [![OWASP MCP Top 10](https://img.shields.io/badge/OWASP%20MCP%20Top%2010-full%20coverage-blue.svg)](https://owasp.org/www-project-mcp-top-10/)
 
 ```bash
@@ -88,6 +88,7 @@ severity, evidence, and a concrete fix.
 mcp-scan --stdio "<command>"     Scan a local stdio MCP server
 mcp-scan --url <http-url>        Scan a remote Streamable-HTTP / SSE server
 mcp-scan --config <path>         Scan every server in a Claude/Cursor mcp.json
+mcp-scan --serve                 Run mcp-scan itself as an MCP server (stdio)
 
 Options:
   --header "K: V"      Extra HTTP header (repeatable), e.g. Authorization
@@ -108,6 +109,39 @@ npx mcp-scan --url https://mcp.example.com/mcp --header "Authorization: Bearer $
 # Every server in your editor's config, as SARIF
 npx mcp-scan --config ~/.cursor/mcp.json --format sarif --output mcp.sarif
 ```
+
+## Give it to your agent (MCP server mode)
+
+mcp-scan can run as an MCP server itself, so an agent can audit another MCP server on demand, before
+you ever wire it in. Add it to any MCP client:
+
+```json
+{
+  "mcpServers": {
+    "mcp-scan": { "command": "npx", "args": ["-y", "mcp-scan", "--serve"] }
+  }
+}
+```
+
+That same `mcpServers` shape works in Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, and
+Gemini CLI. For OpenAI Codex (`~/.codex/config.toml`), use TOML:
+
+```toml
+[mcp_servers.mcp-scan]
+command = "npx"
+args = ["-y", "mcp-scan", "--serve"]
+```
+
+It exposes two tools:
+
+- **`scan_mcp_server`** — audit a server against the OWASP MCP Top 10. Pass a stdio target
+  (`command`, `args`, `env`) or a remote `url` (plus `headers`) and it returns a graded report.
+  `format` is `summary` (default), `json`, or `sarif`.
+- **`list_checks`** — list the checks and their OWASP MCP Top 10 mapping.
+
+Now your agent can vet servers in-loop: *"scan the filesystem MCP server before I add it."* It stays
+passive, and scanning a stdio target spawns that command, so add mcp-scan only where the servers it
+scans are trusted.
 
 ## Output formats
 
@@ -152,7 +186,7 @@ A few things to keep in mind:
 ```bash
 npm install
 npm run build
-npm test          # 42 tests, incl. end-to-end scans of live fixture servers
+npm test          # 48 tests, incl. end-to-end scans of live fixture servers
 npm run coverage  # coverage on detection logic
 ```
 
