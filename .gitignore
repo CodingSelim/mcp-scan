@@ -6,3 +6,4 @@ coverage/
 .env
 mcp.sarif
 *.tsbuildinfo
+CLAUDE.md
