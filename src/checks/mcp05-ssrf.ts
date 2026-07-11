@@ -3,12 +3,9 @@ import { extractParams, isUrlParam } from "../detectors/schema.js";
 
 const ALLOWLIST_HINT_RE = /\b(allow ?list|allowed (hosts?|domains?)|whitelist|must (start|begin) with|only .*(https?:\/\/|domain))\b/i;
 
-/**
- * MCP05 — Server-side request forgery surface.
- * Flags tools accepting a URL/host parameter with no evidence of an allowlist.
- */
-export const mcp05Ssrf: Check = {
-  id: "MCP05",
+/** SSRF surface — OWASP MCP05 (untrusted-input-driven server request / execution). */
+export const ssrfCheck: Check = {
+  id: "ssrf",
   name: "Server-side request forgery (SSRF) surface",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
@@ -25,7 +22,8 @@ export const mcp05Ssrf: Check = {
 
       const names = urlParams.map((p) => p.name).join(", ");
       findings.push({
-        checkId: "MCP05",
+        category: "ssrf",
+        owasp: "MCP05",
         rule: "unrestricted-url-fetch",
         severity: "high",
         title: `Tool '${tool.name}' fetches a caller-supplied URL`,

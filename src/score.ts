@@ -29,6 +29,6 @@ export function sortFindings(findings: readonly Finding[]): Finding[] {
   return [...findings].sort((a, b) => {
     const bySev = severityRank(a.severity) - severityRank(b.severity);
     if (bySev !== 0) return bySev;
-    return a.checkId.localeCompare(b.checkId);
+    return a.owasp.localeCompare(b.owasp);
   });
 }

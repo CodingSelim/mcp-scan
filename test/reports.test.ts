@@ -13,7 +13,8 @@ const sample: ScanResult = {
   serverInfo: { name: "demo", version: "1.0.0" },
   findings: [
     {
-      checkId: "MCP04",
+      category: "command-injection",
+      owasp: "MCP05",
       rule: "unconstrained-command-param",
       severity: "critical",
       title: "Tool 'run' takes an unconstrained command parameter",
@@ -23,7 +24,8 @@ const sample: ScanResult = {
       evidence: "param 'command'",
     },
     {
-      checkId: "MCP08",
+      category: "excessive-scope",
+      owasp: "MCP02",
       rule: "state-changing-tool",
       severity: "low",
       title: "Tool writes data",

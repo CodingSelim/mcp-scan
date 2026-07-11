@@ -6,13 +6,9 @@ import {
   descriptionSuggestsExec,
 } from "../detectors/schema.js";
 
-/**
- * MCP04 — Command / code injection surface.
- * Flags tools whose schema exposes an unconstrained command/query string,
- * or whose description advertises arbitrary execution.
- */
-export const mcp04CommandInjection: Check = {
-  id: "MCP04",
+/** Command / code injection — OWASP MCP05 (Command Injection & Execution). */
+export const commandInjectionCheck: Check = {
+  id: "command-injection",
   name: "Command / code injection surface",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
@@ -24,7 +20,8 @@ export const mcp04CommandInjection: Check = {
       for (const p of params.filter(isCommandParam)) {
         if (p.type === "string" && !p.constrained) {
           findings.push({
-            checkId: "MCP04",
+            category: "command-injection",
+            owasp: "MCP05",
             rule: "unconstrained-command-param",
             severity: "critical",
             title: `Tool '${tool.name}' takes an unconstrained command parameter`,
@@ -39,7 +36,8 @@ export const mcp04CommandInjection: Check = {
 
       if (descriptionSuggestsExec(desc) && params.some((p) => p.type === "string" && !p.constrained)) {
         findings.push({
-          checkId: "MCP04",
+          category: "command-injection",
+          owasp: "MCP05",
           rule: "advertised-execution",
           severity: "high",
           title: `Tool '${tool.name}' advertises arbitrary execution`,
@@ -55,7 +53,8 @@ export const mcp04CommandInjection: Check = {
       for (const p of params.filter(isQueryParam)) {
         if (p.type === "string" && !p.constrained && /\bsql\b/i.test(p.name)) {
           findings.push({
-            checkId: "MCP04",
+            category: "command-injection",
+            owasp: "MCP05",
             rule: "raw-sql-param",
             severity: "high",
             title: `Tool '${tool.name}' accepts raw SQL`,

@@ -1,4 +1,4 @@
-import type { Check, Finding, ScanContext } from "../types.js";
+import type { Check, Finding, OwaspMcpId, ScanContext } from "../types.js";
 import { detectInjection } from "../detectors/injection.js";
 
 const SEVERITY_BY_RULE: Record<string, Finding["severity"]> = {
@@ -11,13 +11,14 @@ const SEVERITY_BY_RULE: Record<string, Finding["severity"]> = {
   "assistant-role-injection": "high",
 };
 
-/**
- * MCP03 — Tool poisoning / description injection.
- * Scans everything the model ingests verbatim: tool descriptions, prompt
- * descriptions, resource descriptions, and server instructions.
- */
-export const mcp03Poisoning: Check = {
-  id: "MCP03",
+// Tool descriptions are static poisoning (MCP03); dynamic resource/instruction
+// text is contextual prompt injection (MCP06).
+const OWASP_BY_SURFACE = (location: string): OwaspMcpId =>
+  location.startsWith("tool:") || location.startsWith("prompt:") ? "MCP03" : "MCP06";
+
+/** Tool poisoning / prompt injection — OWASP MCP03 & MCP06. */
+export const toolPoisoningCheck: Check = {
+  id: "tool-poisoning",
   name: "Tool poisoning / description injection",
   run(ctx: ScanContext): Finding[] {
     const findings: Finding[] = [];
@@ -32,7 +33,8 @@ export const mcp03Poisoning: Check = {
     for (const surface of surfaces) {
       for (const signal of detectInjection(surface.text)) {
         findings.push({
-          checkId: "MCP03",
+          category: "tool-poisoning",
+          owasp: OWASP_BY_SURFACE(surface.location),
           rule: signal.rule,
           severity: SEVERITY_BY_RULE[signal.rule] ?? "high",
           title: `Suspicious instruction in ${surface.location}`,

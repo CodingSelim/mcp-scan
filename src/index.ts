@@ -1,4 +1,5 @@
 export type * from "./types.js";
+export { OWASP_TITLES } from "./types.js";
 export { ALL_CHECKS, runChecks } from "./registry.js";
 export { scanContext, scanTarget } from "./scan.js";
 export { buildScanContext } from "./connect.js";
