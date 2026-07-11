@@ -44,7 +44,7 @@ jobs:
       - name: Scan @modelcontextprotocol/server-filesystem
         run: node dist/cli.js --stdio "npx -y @modelcontextprotocol/server-filesystem ." --format sarif --output mcp.sarif --fail-on none
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: mcp.sarif
           category: mcp-scan
