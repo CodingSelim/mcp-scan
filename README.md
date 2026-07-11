@@ -12,7 +12,7 @@ Point it at any running MCP server. It audits the live server against the **OWAS
 [![OWASP MCP Top 10](https://img.shields.io/badge/OWASP%20MCP%20Top%2010-full%20coverage-blue.svg)](https://owasp.org/www-project-mcp-top-10/)
 
 ```bash
-npx mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"
+npx owasp-mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"
 ```
 
 <img src="./docs/demo.svg" alt="mcp-scan console report: an F-graded MCP server with critical findings" width="720">
@@ -50,15 +50,15 @@ MCP tool descriptions are fed straight into your model's context, and most publi
 **CLI**
 
 ```bash
-npx mcp-scan --stdio "<command>"                                  # local stdio server
-npx mcp-scan --url https://host/mcp --header "Authorization: Bearer $TOKEN"
-npx mcp-scan --config ~/.cursor/mcp.json --format sarif --output mcp.sarif
+npx owasp-mcp-scan --stdio "<command>"                                  # local stdio server
+npx owasp-mcp-scan --url https://host/mcp --header "Authorization: Bearer $TOKEN"
+npx owasp-mcp-scan --config ~/.cursor/mcp.json --format sarif --output mcp.sarif
 ```
 
 **As an MCP server**,  let your agent scan servers on demand (*"scan this MCP server before I add it"*). Add to any client; this `mcpServers` shape works in Claude Code, Claude Desktop, Cursor, Windsurf, VS Code, and Gemini CLI:
 
 ```json
-{ "mcpServers": { "mcp-scan": { "command": "npx", "args": ["-y", "mcp-scan", "--serve"] } } }
+{ "mcpServers": { "mcp-scan": { "command": "npx", "args": ["-y", "owasp-mcp-scan", "--serve"] } } }
 ```
 
 OpenAI Codex (`~/.codex/config.toml`):
@@ -66,7 +66,7 @@ OpenAI Codex (`~/.codex/config.toml`):
 ```toml
 [mcp_servers.mcp-scan]
 command = "npx"
-args = ["-y", "mcp-scan", "--serve"]
+args = ["-y", "owasp-mcp-scan", "--serve"]
 ```
 
 Exposes two tools: **`scan_mcp_server`** (audit a stdio/HTTP target) and **`list_checks`**.
@@ -107,7 +107,7 @@ Full **OWASP MCP Top 10 (2025)** coverage, 12 checks:
 `console` (default) · `json` · `sarif` (GitHub Code Scanning). Exit code is non-zero at/above `--fail-on` (default `high`), so it gates CI:
 
 ```yaml
-- run: npx mcp-scan --url ${{ secrets.MCP_URL }} --format sarif --output mcp.sarif
+- run: npx owasp-mcp-scan --url ${{ secrets.MCP_URL }} --format sarif --output mcp.sarif
 - uses: github/codeql-action/upload-sarif@v3
   with: { sarif_file: mcp.sarif }
 ```

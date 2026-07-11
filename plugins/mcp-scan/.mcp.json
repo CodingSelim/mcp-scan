@@ -2,7 +2,7 @@
   "mcpServers": {
     "mcp-scan": {
       "command": "npx",
-      "args": ["-y", "mcp-scan", "--serve"]
+      "args": ["-y", "owasp-mcp-scan", "--serve"]
     }
   }
 }

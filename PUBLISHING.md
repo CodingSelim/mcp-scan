@@ -5,12 +5,13 @@ the one-time steps to make each live. They must be run by the repo/npm owner.
 
 ## 1. npm (the foundation for everything else)
 
-The Claude Code plugin and the MCP registry entry both run `npx -y mcp-scan --serve`,
-so the npm package must exist first.
+The npm package is **`owasp-mcp-scan`** (`mcp-scan` was already taken). The
+Claude Code plugin and the MCP registry entry both run `npx -y owasp-mcp-scan
+--serve`, so the npm package must exist first.
 
 ```bash
 npm login
-npm publish            # runs the build via prepublishOnly
+npm publish            # unscoped + public; runs the build via prepublishOnly
 ```
 
 Bump `version` in `package.json`, `server.json`, and the plugin manifests together on each release.
@@ -27,7 +28,7 @@ extra publish step. Users run:
 ```
 
 Installing adds the bundled MCP server (`plugins/mcp-scan/.mcp.json`), which runs
-`npx -y mcp-scan --serve`, so it needs step 1 done to actually start.
+`npx -y owasp-mcp-scan --serve`, so it needs step 1 done to actually start.
 
 ## 3. Official MCP registry (any MCP client)
 
