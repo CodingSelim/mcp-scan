@@ -1,0 +1,9 @@
+export type * from "./types.js";
+export { ALL_CHECKS, runChecks } from "./registry.js";
+export { scanContext, scanTarget } from "./scan.js";
+export { buildScanContext } from "./connect.js";
+export type { Target, StdioTarget, HttpTarget } from "./connect.js";
+export { renderConsole } from "./report/console.js";
+export { renderJson } from "./report/json.js";
+export { renderSarif } from "./report/sarif.js";
+export { computeScore, gradeFor, countBySeverity, sortFindings } from "./score.js";
