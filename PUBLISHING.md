@@ -40,7 +40,7 @@ registry.modelcontextprotocol.io. `package.json` carries the matching
 # one-time: install the publisher CLI
 brew install mcp-publisher      # or: see modelcontextprotocol/registry releases
 
-mcp-publisher login github      # authenticates the io.github.codingselim/* namespace
+mcp-publisher login github      # authenticates the io.github.CodingSelim/* namespace
 mcp-publisher publish           # validates and submits server.json
 ```
 

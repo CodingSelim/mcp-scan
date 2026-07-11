@@ -9,7 +9,7 @@
       "name": "mcp-scan",
       "source": "./plugins/mcp-scan",
       "description": "Audit MCP servers against the OWASP MCP Top 10 from inside your agent. Bundles the mcp-scan MCP server so Claude can scan any MCP server before you trust it.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": { "name": "CodingSelim" },
       "homepage": "https://github.com/CodingSelim/mcp-scan",
       "license": "MIT",

@@ -23,7 +23,7 @@ import type { Target } from "./connect.js";
 import { renderJson } from "./report/json.js";
 import { renderSarif } from "./report/sarif.js";
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 
 const SCAN_TOOL = {
   name: "scan_mcp_server",

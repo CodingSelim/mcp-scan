@@ -1,7 +1,7 @@
 {
   "name": "owasp-mcp-scan",
-  "version": "0.2.0",
-  "mcpName": "io.github.codingselim/mcp-scan",
+  "version": "0.2.1",
+  "mcpName": "io.github.CodingSelim/mcp-scan",
   "description": "Security scanner for Model Context Protocol (MCP) servers. Audits running servers against the OWASP MCP Top 10 and outputs console, JSON, and SARIF reports. Runs as a CLI or as an MCP server itself.",
   "type": "module",
   "bin": {

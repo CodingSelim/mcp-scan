@@ -78,7 +78,7 @@ Exposes two tools: **`scan_mcp_server`** (audit a stdio/HTTP target) and **`list
 /plugin install mcp-scan@mcp-scan
 ```
 
-Also on the official MCP registry as `io.github.codingselim/mcp-scan`. Publishing steps: [PUBLISHING.md](./PUBLISHING.md).
+Also on the official MCP registry as `io.github.CodingSelim/mcp-scan`. Publishing steps: [PUBLISHING.md](./PUBLISHING.md).
 
 ## What it checks
 

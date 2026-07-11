@@ -117,7 +117,7 @@ function shouldFail(result: ScanResult, failOn: Options["failOn"]): boolean {
 async function main(): Promise<number> {
   const opts = parseArgs(process.argv.slice(2));
   if (opts.help) { process.stdout.write(HELP + "\n"); return 0; }
-  if (opts.version) { process.stdout.write("mcp-scan 0.2.0\n"); return 0; }
+  if (opts.version) { process.stdout.write("mcp-scan 0.2.1\n"); return 0; }
 
   // Serve mode: run mcp-scan itself as an MCP server over stdio. stdout is the
   // JSON-RPC transport here, so nothing else may be written to it. Never resolves.
