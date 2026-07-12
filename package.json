@@ -36,7 +36,7 @@
   "author": "selimakl.inbox@gmail.com",
   "license": "MIT",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
