@@ -1,20 +1,21 @@
 import pc from "picocolors";
-import gradient from "gradient-string";
-import logSymbols from "log-symbols";
+import cfonts from "cfonts";
 import boxen from "boxen";
 import figures from "figures";
+import logSymbols from "log-symbols";
+import cliTruncate from "cli-truncate";
+import stringWidth from "string-width";
 import Table from "cli-table3";
 import type { Finding, ScanResult, Severity } from "../types.js";
 
-const BRAND = gradient(["#fde047", "#facc15", "#f59e0b"]);
-const GUTTER = "  "; // left page margin
-const indent = (block: string, pad = GUTTER): string =>
-  block
-    .split("\n")
-    .map((l) => pad + l)
-    .join("\n");
+// Responsive to the terminal, clamped so it stays tidy on very wide or very narrow windows.
+const COLS = Math.min(Math.max(process.stdout.columns || 96, 72), 120);
+const GUTTER = "  ";
+const INNER = COLS - GUTTER.length * 2;
+const RULE_W = Math.min(INNER, 72);
 
-// Black and yellow theme. Severity reads through yellow intensity plus an inverted badge for critical.
+const SEV_ORDER: Severity[] = ["critical", "high", "medium", "low", "info"];
+
 const SEV_TAG: Record<Severity, (s: string) => string> = {
   critical: (s) => pc.bgYellow(pc.black(pc.bold(s))),
   high: (s) => pc.yellow(pc.bold(s)),
@@ -39,25 +40,24 @@ const GRADE_BADGE: Record<ScanResult["grade"], (s: string) => string> = {
   F: (s) => pc.bgYellow(pc.black(pc.bold(s))),
 };
 
-const gradePaint = (_g: ScanResult["grade"]): ((s: string) => string) => (s) => pc.bold(pc.yellow(s));
-
-const RULE_W = 66;
-const SEV_ORDER: Severity[] = ["critical", "high", "medium", "low", "info"];
+const indent = (block: string, pad = GUTTER): string =>
+  block
+    .split("\n")
+    .map((l) => pad + l)
+    .join("\n");
 
 // A section header: a label followed by a dim rule that fills the width.
-function ruleLine(plainLabel: string, coloredLabel: string): string {
-  const dashes = Math.max(0, RULE_W - plainLabel.length - 1);
+function ruleLine(coloredLabel: string): string {
+  const dashes = Math.max(0, RULE_W - stringWidth(coloredLabel) - 1);
   return `${GUTTER}${coloredLabel} ${pc.dim("─".repeat(dashes))}`;
 }
 
-function header(): string {
-  const title = `${BRAND("◆ mcp-scan")}   ${pc.dim("MCP Security Report")}`;
-  const box = boxen(title, {
-    padding: { top: 0, bottom: 0, left: 2, right: 2 },
-    borderStyle: "round",
-    borderColor: "yellow",
-  });
-  return indent(box);
+function banner(): string {
+  const rendered = cfonts.render("mcp-scan", { font: "tiny", colors: ["yellow"], space: false, env: "node" });
+  const art = (rendered ? rendered.string : "mcp-scan").replace(/^\n+|\n+$/g, "");
+  const lines = indent(art).split("\n");
+  lines.push(`${GUTTER}${pc.dim("MCP Security Report")}   ${pc.dim(figures.pointerSmall)}   ${pc.dim("OWASP MCP Top 10 audit")}`);
+  return lines.join("\n");
 }
 
 function metaRow(label: string, value: string): string {
@@ -83,20 +83,24 @@ function severityTable(counts: Record<Severity, number>): string {
   return indent(table.toString());
 }
 
-function scoreMeter(score: number, grade: ScanResult["grade"]): string {
-  const barW = 22;
+function verdictPanel(score: number, grade: ScanResult["grade"]): string {
+  const barW = 20;
   const filled = Math.round((score / 100) * barW);
-  const paint = gradePaint(grade);
-  const bar = paint("█".repeat(filled)) + pc.dim("░".repeat(barW - filled));
-  return (
-    `${GUTTER}${pc.dim("Risk score:")}  ${bar}  ${pc.bold(String(score))}${pc.dim("/100")}` +
-    `     ${pc.dim("Grade")}  ${GRADE_BADGE[grade](` ${grade} `)}`
-  );
+  const bar = pc.bold(pc.yellow("█".repeat(filled))) + pc.dim("░".repeat(barW - filled));
+  const text =
+    `${pc.dim("Grade")}  ${GRADE_BADGE[grade](` ${grade} `)}     ` +
+    `${pc.dim("Risk score:")} ${bar} ${pc.bold(String(score))}${pc.dim("/100")}`;
+  const box = boxen(text, {
+    padding: { top: 0, bottom: 0, left: 1, right: 1 },
+    borderStyle: "round",
+    borderColor: "yellow",
+  });
+  return indent(box);
 }
 
 export function renderConsole(result: ScanResult): string {
   const lines: string[] = [""];
-  lines.push(header());
+  lines.push(banner());
   lines.push("");
 
   lines.push(metaRow("Target", result.target));
@@ -116,7 +120,7 @@ export function renderConsole(result: ScanResult): string {
 
   lines.push(severityTable(result.counts));
   lines.push("");
-  lines.push(scoreMeter(result.score, result.grade));
+  lines.push(verdictPanel(result.score, result.grade));
   lines.push("");
 
   if (result.findings.length === 0) {
@@ -124,16 +128,14 @@ export function renderConsole(result: ScanResult): string {
     lines.push(`${GUTTER}${pc.dim("This server passed every OWASP MCP Top 10 check.")}`);
   } else {
     const total = result.findings.length;
-    lines.push(ruleLine(`FINDINGS  ${total}`, `${pc.bold(pc.yellow("FINDINGS"))}  ${pc.dim(String(total))}`));
+    lines.push(ruleLine(`${pc.bold(pc.yellow("FINDINGS"))}  ${pc.dim(String(total))}`));
     lines.push("");
 
     let n = 0;
     for (const sev of SEV_ORDER) {
       const group = result.findings.filter((f) => f.severity === sev);
       if (group.length === 0) continue;
-      const badge = SEV_TAG[sev](` ${sev.toUpperCase()} `);
-      const plain = ` ${sev.toUpperCase()}   ${group.length}`;
-      lines.push(ruleLine(plain, `${badge}  ${pc.dim(String(group.length))}`));
+      lines.push(ruleLine(`${SEV_TAG[sev](` ${sev.toUpperCase()} `)}  ${pc.dim(String(group.length))}`));
       lines.push("");
       for (const f of group) {
         n += 1;
@@ -143,9 +145,7 @@ export function renderConsole(result: ScanResult): string {
   }
 
   if (result.errors.length > 0) {
-    lines.push(
-      ruleLine("CHECK ERRORS", `${logSymbols.warning} ${pc.yellow(`${result.errors.length} check error(s)`)}`),
-    );
+    lines.push(ruleLine(`${logSymbols.warning} ${pc.yellow(`${result.errors.length} check error(s)`)}`));
     for (const e of result.errors) lines.push(`${GUTTER}${pc.dim(`  ${e}`)}`);
     lines.push("");
   }
@@ -163,12 +163,13 @@ function renderFinding(f: Finding, n: number): string {
   const pad = `${GUTTER}  `; // 4 cols, findings sit under their severity header
   const sub = `${pad}    `; // 8 cols, aligns sub-lines under the title text
   const idx = pc.yellow(String(n).padStart(2, "0"));
+  const valueBudget = Math.max(28, INNER - 18);
 
   const out: string[] = [];
-  out.push(`${pad}${idx}  ${pc.bold(oneLine(f.title))}`);
-  out.push(`${sub}${pc.dim(`${oneLine(f.location)}   ${f.owasp} ${f.category}/${f.rule}`)}`);
-  if (f.evidence) out.push(`${sub}${pc.dim(`evidence  ${truncate(oneLine(f.evidence), 70)}`)}`);
-  out.push(`${sub}${pc.yellow("fix")}       ${truncate(oneLine(f.remediation), 78)}`);
+  out.push(`${pad}${idx}  ${pc.bold(cliTruncate(oneLine(f.title), INNER - 6))}`);
+  out.push(`${sub}${pc.dim(cliTruncate(`${oneLine(f.location)}   ${f.owasp} ${f.category}/${f.rule}`, INNER - 8))}`);
+  if (f.evidence) out.push(`${sub}${pc.dim(`evidence  ${cliTruncate(oneLine(f.evidence), valueBudget)}`)}`);
+  out.push(`${sub}${pc.yellow("fix")}       ${cliTruncate(oneLine(f.remediation), valueBudget)}`);
   out.push("");
   return out.join("\n");
 }
@@ -176,8 +177,4 @@ function renderFinding(f: Finding, n: number): string {
 // Collapse any whitespace (including embedded newlines) so a value renders as one clean line.
 function oneLine(s: string): string {
   return s.replace(/\s+/g, " ").trim();
-}
-
-function truncate(s: string, n: number): string {
-  return s.length > n ? s.slice(0, n) + "…" : s;
 }
