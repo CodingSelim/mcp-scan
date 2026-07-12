@@ -41,8 +41,13 @@ const GRADE_BADGE: Record<ScanResult["grade"], (s: string) => string> = {
 
 const gradePaint = (_g: ScanResult["grade"]): ((s: string) => string) => (s) => pc.bold(pc.yellow(s));
 
-function sevTag(sev: Severity): string {
-  return SEV_TAG[sev](` ${sev.toUpperCase()} `);
+const RULE_W = 66;
+const SEV_ORDER: Severity[] = ["critical", "high", "medium", "low", "info"];
+
+// A section header: a label followed by a dim rule that fills the width.
+function ruleLine(plainLabel: string, coloredLabel: string): string {
+  const dashes = Math.max(0, RULE_W - plainLabel.length - 1);
+  return `${GUTTER}${coloredLabel} ${pc.dim("─".repeat(dashes))}`;
 }
 
 function header(): string {
@@ -118,34 +123,52 @@ export function renderConsole(result: ScanResult): string {
     lines.push(`${GUTTER}${logSymbols.success}  ${pc.bold("No security findings detected.")}`);
     lines.push(`${GUTTER}${pc.dim("This server passed every OWASP MCP Top 10 check.")}`);
   } else {
-    lines.push(`${GUTTER}${pc.bold("Findings")} ${pc.dim(`(${result.findings.length})`)}`);
+    const total = result.findings.length;
+    lines.push(ruleLine(`FINDINGS  ${total}`, `${pc.bold(pc.yellow("FINDINGS"))}  ${pc.dim(String(total))}`));
     lines.push("");
-    result.findings.forEach((f, i) => lines.push(renderFinding(f, i + 1)));
+
+    let n = 0;
+    for (const sev of SEV_ORDER) {
+      const group = result.findings.filter((f) => f.severity === sev);
+      if (group.length === 0) continue;
+      const badge = SEV_TAG[sev](` ${sev.toUpperCase()} `);
+      const plain = ` ${sev.toUpperCase()}   ${group.length}`;
+      lines.push(ruleLine(plain, `${badge}  ${pc.dim(String(group.length))}`));
+      lines.push("");
+      for (const f of group) {
+        n += 1;
+        lines.push(renderFinding(f, n));
+      }
+    }
   }
 
   if (result.errors.length > 0) {
-    lines.push("");
-    lines.push(`${GUTTER}${logSymbols.warning}  ${pc.yellow(`${result.errors.length} check error(s):`)}`);
+    lines.push(
+      ruleLine("CHECK ERRORS", `${logSymbols.warning} ${pc.yellow(`${result.errors.length} check error(s)`)}`),
+    );
     for (const e of result.errors) lines.push(`${GUTTER}${pc.dim(`  ${e}`)}`);
+    lines.push("");
   }
 
   lines.push("");
   return lines.join("\n");
 }
 
+// One finding, laid out as a title line plus an aligned label column under a severity-colored gutter.
 function renderFinding(f: Finding, n: number): string {
   const bar = SEV_PAINT[f.severity]("▎");
   const idx = pc.dim(String(n).padStart(2, "0"));
-  const tag = pc.dim(`[OWASP ${f.owasp} · ${f.category}/${f.rule}]`);
-  const guide = `${GUTTER}${bar}     `;
+  const sub = `${GUTTER}${bar}      `; // sub-line indent, keeps the gutter bar running down
+  const valueIndent = sub + " ".repeat(10); // wrapped continuation lines align under the value column
+  const label = (t: string): string => pc.dim(t.padEnd(10));
 
   const out: string[] = [];
-  out.push(`${GUTTER}${bar} ${idx} ${sevTag(f.severity)} ${pc.bold(f.title)}`);
-  out.push(`${guide}${tag}`);
-  out.push(`${guide}${pc.dim(figures.arrowRight)} ${pc.dim("where")}  ${f.location}`);
-  out.push(`${guide}${wrap(f.description, guide)}`);
-  if (f.evidence) out.push(`${guide}${pc.dim(figures.arrowRight)} ${pc.dim("evidence")}  ${pc.dim(truncate(f.evidence, 160))}`);
-  out.push(`${guide}${pc.yellow(figures.tick)} ${pc.yellow("fix")}  ${wrap(f.remediation, guide)}`);
+  out.push(`${GUTTER}${bar}  ${idx}  ${pc.bold(f.title)}`);
+  out.push(`${sub}${pc.dim(`${f.owasp} · ${f.category}/${f.rule}`)}`);
+  out.push(`${sub}${label("where")}${f.location}`);
+  out.push(`${sub}${label("detail")}${wrap(f.description, valueIndent, 74)}`);
+  if (f.evidence) out.push(`${sub}${label("evidence")}${pc.dim(truncate(f.evidence, 140))}`);
+  out.push(`${sub}${label("fix")}${pc.yellow(wrap(f.remediation, valueIndent, 74))}`);
   out.push("");
   return out.join("\n");
 }
