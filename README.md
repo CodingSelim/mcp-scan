@@ -15,7 +15,7 @@ Point it at any running MCP server. It audits the live server against the **OWAS
 npx owasp-mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"
 ```
 
-<img src="./docs/demo.svg" alt="mcp-scan console report: an F-graded MCP server with critical findings" width="720">
+<img src="./docs/cli-demo.png" alt="mcp-scan console report: firecrawl-mcp graded F with critical findings" width="760">
 
 </div>
 
