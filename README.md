@@ -2,9 +2,10 @@
 
 # 🛡️ mcp-scan
 
-**Security scanner for Model Context Protocol servers.**
-Point it at any running MCP server. It audits the live server against the **OWASP MCP Top 10** and grades it **A–F**.
+**Passive security scanner for Model Context Protocol servers.**
+Point it at any running MCP server; it audits the live server against the **OWASP MCP Top 10** and grades it **A–F**. Read-only, so it is safe to run against production.
 
+[![npm](https://img.shields.io/npm/v/owasp-mcp-scan?color=blue)](https://www.npmjs.com/package/owasp-mcp-scan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A518-brightgreen.svg)](https://nodejs.org)
 [![CI](https://github.com/CodingSelim/mcp-scan/actions/workflows/ci.yml/badge.svg)](https://github.com/CodingSelim/mcp-scan/actions/workflows/ci.yml)
@@ -17,6 +18,8 @@ npx owasp-mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"
 
 <img src="./docs/cli-demo.png" alt="mcp-scan console report: firecrawl-mcp graded F with critical findings" width="760">
 
+I ran it against the 12 most-installed MCP servers. **[9 of them failed.](#real-findings-on-real-servers)** No install, no config, no exploiting anything.
+
 </div>
 
 ---
@@ -26,6 +29,15 @@ npx owasp-mcp-scan --stdio "npx -y @modelcontextprotocol/server-filesystem /tmp"
 MCP tool descriptions are fed straight into your model's context, and most public servers were never security-reviewed. A bad one can hide instructions in a description, expose a raw-shell tool, or leak a key; and your agent acts on it. Endor Labs found **82%** of servers prone to path traversal, **34%** to command injection.
 
 **mcp-scan is the gut-check before you wire a server in.** It's passive: it reads advertised capabilities and analyzes them statically, never invoking tools, so it's safe against production servers.
+
+## How it works
+
+1. Connects to the server over stdio or Streamable HTTP and enumerates every advertised tool, prompt, and resource.
+2. Runs 12 static checks across that surface: secrets, injection, SSRF, path traversal, tool poisoning, excessive scope, and more.
+3. `toxic-flow` reasons across the **whole** toolset for the lethal trifecta (reads private data + ingests untrusted content + can exfiltrate), the shape single-tool scanners miss.
+4. Scores 0-100 and grades A-F (any critical forces F). Emits console, JSON, or SARIF.
+
+It never calls a tool, never fuzzes, and never sends an exploit. The worst it does is read what the server already tells everyone.
 
 ## Real findings on real servers
 
@@ -43,7 +55,12 @@ MCP tool descriptions are fed straight into your model's context, and most publi
 | `@modelcontextprotocol/server-everything` | 13 | **A** | 0 | 0 | 0 | clean ✓ |
 | `@kazuph/mcp-fetch` | 1 | **A** | 0 | 0 | 0 | clean ✓ |
 
-**9 of 12 flagged, 3 clean**, every row audited finding-by-finding, false positives stripped rather than padded.
+**9 of 12 flagged, 3 clean**, every row audited finding-by-finding, false positives stripped rather than padded. Reproduce any row yourself:
+
+```bash
+npx owasp-mcp-scan --stdio "npx -y firecrawl-mcp"     # F: lethal trifecta + code exec
+npx owasp-mcp-scan --stdio "npx -y @modelcontextprotocol/server-everything"   # A: clean
+```
 
 ## Use it
 
@@ -112,11 +129,11 @@ Full **OWASP MCP Top 10 (2025)** coverage, 12 checks:
   with: { sarif_file: mcp.sarif }
 ```
 
-## Notes
+## Limitations (read these)
 
 - Static analysis can't see runtime sandboxing, a server that safely confines paths still flags them. Verify against actual enforcement.
 - Auth and transport checks apply to HTTP targets only.
-- Heuristics favor recall; triage findings in context.
+- Heuristics favor recall, so triage findings in context. When a rule is tightened to kill a false positive, a test pins the intended behavior.
 - Scanning a stdio target spawns that command, so run it only on servers you trust.
 
 ## Develop
