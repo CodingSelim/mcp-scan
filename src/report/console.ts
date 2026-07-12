@@ -150,45 +150,34 @@ export function renderConsole(result: ScanResult): string {
     lines.push("");
   }
 
+  if (result.findings.length > 0) {
+    lines.push(`${GUTTER}${pc.dim(`${figures.pointerSmall} full descriptions and remediation: --format json or sarif`)}`);
+  }
+
   lines.push("");
   return lines.join("\n");
 }
 
-// One finding, laid out as a title line plus an aligned label column under a severity-colored gutter.
+// One finding as a compact card: bold title, a dim meta line, then the fix. Yellow is an accent only.
 function renderFinding(f: Finding, n: number): string {
-  const bar = SEV_PAINT[f.severity]("▎");
-  const idx = pc.dim(String(n).padStart(2, "0"));
-  const sub = `${GUTTER}${bar}      `; // sub-line indent, keeps the gutter bar running down
-  const valueIndent = sub + " ".repeat(10); // wrapped continuation lines align under the value column
-  const label = (t: string): string => pc.dim(t.padEnd(10));
+  const pad = `${GUTTER}  `; // 4 cols, findings sit under their severity header
+  const sub = `${pad}    `; // 8 cols, aligns sub-lines under the title text
+  const idx = pc.yellow(String(n).padStart(2, "0"));
 
   const out: string[] = [];
-  out.push(`${GUTTER}${bar}  ${idx}  ${pc.bold(f.title)}`);
-  out.push(`${sub}${pc.dim(`${f.owasp} · ${f.category}/${f.rule}`)}`);
-  out.push(`${sub}${label("where")}${f.location}`);
-  out.push(`${sub}${label("detail")}${wrap(f.description, valueIndent, 74)}`);
-  if (f.evidence) out.push(`${sub}${label("evidence")}${pc.dim(truncate(f.evidence, 140))}`);
-  out.push(`${sub}${label("fix")}${pc.yellow(wrap(f.remediation, valueIndent, 74))}`);
+  out.push(`${pad}${idx}  ${pc.bold(f.title)}`);
+  out.push(`${sub}${pc.dim(`${f.location}   ${f.owasp} ${f.category}/${f.rule}`)}`);
+  if (f.evidence) out.push(`${sub}${pc.dim(`evidence  ${truncate(f.evidence, 68)}`)}`);
+  out.push(`${sub}${pc.yellow("fix")}       ${truncate(oneLine(f.remediation), 86)}`);
   out.push("");
   return out.join("\n");
 }
 
-function truncate(s: string, n: number): string {
-  return s.length > n ? s.slice(0, n) + "…" : s;
+// Collapse whitespace so a wrapped remediation string renders as one clean line.
+function oneLine(s: string): string {
+  return s.replace(/\s+/g, " ").trim();
 }
 
-function wrap(text: string, indentStr: string, width = 84): string {
-  const words = text.split(/\s+/);
-  const lines: string[] = [];
-  let cur = "";
-  for (const w of words) {
-    if ((cur + " " + w).trim().length > width) {
-      lines.push(cur.trim());
-      cur = w;
-    } else {
-      cur += " " + w;
-    }
-  }
-  if (cur.trim()) lines.push(cur.trim());
-  return lines.join("\n" + indentStr);
+function truncate(s: string, n: number): string {
+  return s.length > n ? s.slice(0, n) + "…" : s;
 }
