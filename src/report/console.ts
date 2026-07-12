@@ -165,15 +165,15 @@ function renderFinding(f: Finding, n: number): string {
   const idx = pc.yellow(String(n).padStart(2, "0"));
 
   const out: string[] = [];
-  out.push(`${pad}${idx}  ${pc.bold(f.title)}`);
-  out.push(`${sub}${pc.dim(`${f.location}   ${f.owasp} ${f.category}/${f.rule}`)}`);
-  if (f.evidence) out.push(`${sub}${pc.dim(`evidence  ${truncate(f.evidence, 68)}`)}`);
-  out.push(`${sub}${pc.yellow("fix")}       ${truncate(oneLine(f.remediation), 86)}`);
+  out.push(`${pad}${idx}  ${pc.bold(oneLine(f.title))}`);
+  out.push(`${sub}${pc.dim(`${oneLine(f.location)}   ${f.owasp} ${f.category}/${f.rule}`)}`);
+  if (f.evidence) out.push(`${sub}${pc.dim(`evidence  ${truncate(oneLine(f.evidence), 70)}`)}`);
+  out.push(`${sub}${pc.yellow("fix")}       ${truncate(oneLine(f.remediation), 78)}`);
   out.push("");
   return out.join("\n");
 }
 
-// Collapse whitespace so a wrapped remediation string renders as one clean line.
+// Collapse any whitespace (including embedded newlines) so a value renders as one clean line.
 function oneLine(s: string): string {
   return s.replace(/\s+/g, " ").trim();
 }
