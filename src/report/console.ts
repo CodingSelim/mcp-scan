@@ -1,17 +1,18 @@
 import pc from "picocolors";
 import gradient from "gradient-string";
 import logSymbols from "log-symbols";
+import boxen from "boxen";
+import figures from "figures";
+import Table from "cli-table3";
 import type { Finding, ScanResult, Severity } from "../types.js";
 
 const BRAND = gradient(["#22d3ee", "#818cf8", "#c084fc"]);
-
-// Visible width, ignoring ANSI color escapes, so boxes line up when the content is colored.
-const ANSI_RE = new RegExp(String.fromCharCode(27) + "\\[[0-9;]*m", "g");
-const vlen = (s: string): number => s.replace(ANSI_RE, "").length;
-const padEnd = (s: string, w: number): string => s + " ".repeat(Math.max(0, w - vlen(s)));
-
-const WIDTH = 64; // inner box width
 const GUTTER = "  "; // left page margin
+const indent = (block: string, pad = GUTTER): string =>
+  block
+    .split("\n")
+    .map((l) => pad + l)
+    .join("\n");
 
 const SEV_TAG: Record<Severity, (s: string) => string> = {
   critical: (s) => pc.bgRed(pc.white(pc.bold(s))),
@@ -44,29 +45,38 @@ function sevTag(sev: Severity): string {
   return SEV_TAG[sev](` ${sev.toUpperCase()} `);
 }
 
-function headerBox(): string[] {
-  const title = ` ${BRAND("◆ mcp-scan")}  ${pc.dim("MCP Security Report")}`;
-  return [
-    pc.gray(`${GUTTER}╭${"─".repeat(WIDTH)}╮`),
-    `${GUTTER}${pc.gray("│")}${padEnd(title, WIDTH)}${pc.gray("│")}`,
-    pc.gray(`${GUTTER}╰${"─".repeat(WIDTH)}╯`),
-  ];
+function header(): string {
+  const title = `${BRAND("◆ mcp-scan")}   ${pc.dim("MCP Security Report")}`;
+  const box = boxen(title, {
+    padding: { top: 0, bottom: 0, left: 2, right: 2 },
+    borderStyle: "round",
+    borderColor: "cyan",
+    dimBorder: true,
+  });
+  return indent(box);
 }
 
 function metaRow(label: string, value: string): string {
-  return `${GUTTER}${pc.dim(label.padEnd(8))}${value}`;
+  return `${GUTTER}${pc.dim(figures.pointerSmall)} ${pc.dim(label.padEnd(8))}${value}`;
 }
 
-function severityStrip(counts: Record<Severity, number>): string {
-  const order: Severity[] = ["critical", "high", "medium", "low", "info"];
-  const cells = order.map((sev) => {
-    const n = counts[sev];
-    const dot = n > 0 ? SEV_PAINT[sev]("●") : pc.dim("○");
-    const label = n > 0 ? sev.toUpperCase() : pc.dim(sev.toUpperCase());
-    const num = n > 0 ? pc.bold(String(n)) : pc.dim(String(n));
-    return `${dot} ${label} ${num}`;
+function severityTable(counts: Record<Severity, number>): string {
+  const table = new Table({
+    head: [
+      pc.bgRed(pc.white(pc.bold(" CRITICAL "))),
+      pc.red(pc.bold("HIGH")),
+      pc.yellow(pc.bold("MEDIUM")),
+      pc.cyan("LOW"),
+      pc.gray("INFO"),
+    ],
+    colAligns: ["center", "center", "center", "center", "center"],
+    // cli-table3 forces its own border color and ignores NO_COLOR, so only enable it when color is supported.
+    style: { head: [], border: pc.isColorSupported ? ["gray"] : [] },
   });
-  return `${GUTTER}${cells.join(pc.dim("   "))}`;
+  const cell = (sev: Severity): string =>
+    counts[sev] > 0 ? SEV_PAINT[sev](pc.bold(String(counts[sev]))) : pc.dim("0");
+  table.push([cell("critical"), cell("high"), cell("medium"), cell("low"), cell("info")]);
+  return indent(table.toString());
 }
 
 function scoreMeter(score: number, grade: ScanResult["grade"]): string {
@@ -82,7 +92,7 @@ function scoreMeter(score: number, grade: ScanResult["grade"]): string {
 
 export function renderConsole(result: ScanResult): string {
   const lines: string[] = [""];
-  lines.push(...headerBox());
+  lines.push(header());
   lines.push("");
 
   lines.push(metaRow("Target", result.target));
@@ -100,11 +110,9 @@ export function renderConsole(result: ScanResult): string {
   );
   lines.push("");
 
-  lines.push(severityStrip(result.counts));
+  lines.push(severityTable(result.counts));
   lines.push("");
   lines.push(scoreMeter(result.score, result.grade));
-  lines.push("");
-  lines.push(pc.gray(`${GUTTER}${"─".repeat(WIDTH + 2)}`));
   lines.push("");
 
   if (result.findings.length === 0) {
@@ -135,10 +143,10 @@ function renderFinding(f: Finding, n: number): string {
   const out: string[] = [];
   out.push(`${GUTTER}${bar} ${idx} ${sevTag(f.severity)} ${pc.bold(f.title)}`);
   out.push(`${guide}${tag}`);
-  out.push(`${guide}${pc.dim("where")}  ${f.location}`);
+  out.push(`${guide}${pc.dim(figures.arrowRight)} ${pc.dim("where")}  ${f.location}`);
   out.push(`${guide}${wrap(f.description, guide)}`);
-  if (f.evidence) out.push(`${guide}${pc.dim("evidence")}  ${pc.dim(truncate(f.evidence, 160))}`);
-  out.push(`${guide}${pc.green("fix")}  ${wrap(f.remediation, guide)}`);
+  if (f.evidence) out.push(`${guide}${pc.dim(figures.arrowRight)} ${pc.dim("evidence")}  ${pc.dim(truncate(f.evidence, 160))}`);
+  out.push(`${guide}${pc.green(figures.tick)} ${pc.green("fix")}  ${wrap(f.remediation, guide)}`);
   out.push("");
   return out.join("\n");
 }
@@ -147,7 +155,7 @@ function truncate(s: string, n: number): string {
   return s.length > n ? s.slice(0, n) + "…" : s;
 }
 
-function wrap(text: string, indent: string, width = 84): string {
+function wrap(text: string, indentStr: string, width = 84): string {
   const words = text.split(/\s+/);
   const lines: string[] = [];
   let cur = "";
@@ -160,5 +168,5 @@ function wrap(text: string, indent: string, width = 84): string {
     }
   }
   if (cur.trim()) lines.push(cur.trim());
-  return lines.join("\n" + indent);
+  return lines.join("\n" + indentStr);
 }
