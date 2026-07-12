@@ -1,8 +1,12 @@
 import pc from "picocolors";
+import gradient from "gradient-string";
+import logSymbols from "log-symbols";
 import type { Finding, ScanResult, Severity } from "../types.js";
 
-// Visible width, ignoring ANSI color escapes, so boxes line up when colored.
-const ANSI_RE = /\[[0-9;]*m/g;
+const BRAND = gradient(["#22d3ee", "#818cf8", "#c084fc"]);
+
+// Visible width, ignoring ANSI color escapes, so boxes line up when the content is colored.
+const ANSI_RE = new RegExp(String.fromCharCode(27) + "\\[[0-9;]*m", "g");
 const vlen = (s: string): number => s.replace(ANSI_RE, "").length;
 const padEnd = (s: string, w: number): string => s + " ".repeat(Math.max(0, w - vlen(s)));
 
@@ -41,7 +45,7 @@ function sevTag(sev: Severity): string {
 }
 
 function headerBox(): string[] {
-  const title = ` ${pc.cyan(pc.bold("◆ mcp-scan"))}  ${pc.dim("MCP Security Report")}`;
+  const title = ` ${BRAND("◆ mcp-scan")}  ${pc.dim("MCP Security Report")}`;
   return [
     pc.gray(`${GUTTER}╭${"─".repeat(WIDTH)}╮`),
     `${GUTTER}${pc.gray("│")}${padEnd(title, WIDTH)}${pc.gray("│")}`,
@@ -104,17 +108,17 @@ export function renderConsole(result: ScanResult): string {
   lines.push("");
 
   if (result.findings.length === 0) {
-    lines.push(`${GUTTER}${pc.green("✓")}  ${pc.bold("No security findings detected.")}`);
+    lines.push(`${GUTTER}${logSymbols.success}  ${pc.bold("No security findings detected.")}`);
     lines.push(`${GUTTER}${pc.dim("This server passed every OWASP MCP Top 10 check.")}`);
   } else {
-    lines.push(`${GUTTER}${pc.bold(`Findings`)} ${pc.dim(`(${result.findings.length})`)}`);
+    lines.push(`${GUTTER}${pc.bold("Findings")} ${pc.dim(`(${result.findings.length})`)}`);
     lines.push("");
     result.findings.forEach((f, i) => lines.push(renderFinding(f, i + 1)));
   }
 
   if (result.errors.length > 0) {
     lines.push("");
-    lines.push(`${GUTTER}${pc.yellow("⚠")}  ${pc.yellow(`${result.errors.length} check error(s):`)}`);
+    lines.push(`${GUTTER}${logSymbols.warning}  ${pc.yellow(`${result.errors.length} check error(s):`)}`);
     for (const e of result.errors) lines.push(`${GUTTER}${pc.dim(`  ${e}`)}`);
   }
 
@@ -125,7 +129,7 @@ export function renderConsole(result: ScanResult): string {
 function renderFinding(f: Finding, n: number): string {
   const bar = SEV_PAINT[f.severity]("▎");
   const idx = pc.dim(String(n).padStart(2, "0"));
-  const tag = pc.dim("[") + pc.dim(`OWASP ${f.owasp} · ${f.category}/${f.rule}`) + pc.dim("]");
+  const tag = pc.dim(`[OWASP ${f.owasp} · ${f.category}/${f.rule}]`);
   const guide = `${GUTTER}${bar}     `;
 
   const out: string[] = [];
