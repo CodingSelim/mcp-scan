@@ -6,7 +6,7 @@ import figures from "figures";
 import Table from "cli-table3";
 import type { Finding, ScanResult, Severity } from "../types.js";
 
-const BRAND = gradient(["#22d3ee", "#818cf8", "#c084fc"]);
+const BRAND = gradient(["#fde047", "#facc15", "#f59e0b"]);
 const GUTTER = "  "; // left page margin
 const indent = (block: string, pad = GUTTER): string =>
   block
@@ -14,32 +14,32 @@ const indent = (block: string, pad = GUTTER): string =>
     .map((l) => pad + l)
     .join("\n");
 
+// Black and yellow theme. Severity reads through yellow intensity plus an inverted badge for critical.
 const SEV_TAG: Record<Severity, (s: string) => string> = {
-  critical: (s) => pc.bgRed(pc.white(pc.bold(s))),
-  high: (s) => pc.red(pc.bold(s)),
-  medium: (s) => pc.yellow(pc.bold(s)),
-  low: (s) => pc.cyan(s),
+  critical: (s) => pc.bgYellow(pc.black(pc.bold(s))),
+  high: (s) => pc.yellow(pc.bold(s)),
+  medium: (s) => pc.yellow(s),
+  low: (s) => pc.dim(pc.yellow(s)),
   info: (s) => pc.gray(s),
 };
 
 const SEV_PAINT: Record<Severity, (s: string) => string> = {
-  critical: pc.red,
-  high: pc.red,
-  medium: pc.yellow,
-  low: pc.cyan,
-  info: pc.gray,
+  critical: (s) => pc.bold(pc.yellow(s)),
+  high: (s) => pc.yellow(s),
+  medium: (s) => pc.yellow(s),
+  low: (s) => pc.dim(pc.yellow(s)),
+  info: (s) => pc.gray(s),
 };
 
 const GRADE_BADGE: Record<ScanResult["grade"], (s: string) => string> = {
-  A: (s) => pc.bgGreen(pc.black(pc.bold(s))),
-  B: (s) => pc.bgGreen(pc.black(pc.bold(s))),
+  A: (s) => pc.bgYellow(pc.black(pc.bold(s))),
+  B: (s) => pc.bgYellow(pc.black(pc.bold(s))),
   C: (s) => pc.bgYellow(pc.black(pc.bold(s))),
-  D: (s) => pc.bgRed(pc.white(pc.bold(s))),
-  F: (s) => pc.bgRed(pc.white(pc.bold(s))),
+  D: (s) => pc.bgYellow(pc.black(pc.bold(s))),
+  F: (s) => pc.bgYellow(pc.black(pc.bold(s))),
 };
 
-const gradePaint = (g: ScanResult["grade"]): ((s: string) => string) =>
-  g === "A" || g === "B" ? pc.green : g === "C" ? pc.yellow : pc.red;
+const gradePaint = (_g: ScanResult["grade"]): ((s: string) => string) => (s) => pc.bold(pc.yellow(s));
 
 function sevTag(sev: Severity): string {
   return SEV_TAG[sev](` ${sev.toUpperCase()} `);
@@ -50,8 +50,7 @@ function header(): string {
   const box = boxen(title, {
     padding: { top: 0, bottom: 0, left: 2, right: 2 },
     borderStyle: "round",
-    borderColor: "cyan",
-    dimBorder: true,
+    borderColor: "yellow",
   });
   return indent(box);
 }
@@ -63,10 +62,10 @@ function metaRow(label: string, value: string): string {
 function severityTable(counts: Record<Severity, number>): string {
   const table = new Table({
     head: [
-      pc.bgRed(pc.white(pc.bold(" CRITICAL "))),
-      pc.red(pc.bold("HIGH")),
-      pc.yellow(pc.bold("MEDIUM")),
-      pc.cyan("LOW"),
+      pc.bgYellow(pc.black(pc.bold(" CRITICAL "))),
+      pc.yellow(pc.bold("HIGH")),
+      pc.yellow("MEDIUM"),
+      pc.dim(pc.yellow("LOW")),
       pc.gray("INFO"),
     ],
     colAligns: ["center", "center", "center", "center", "center"],
@@ -146,7 +145,7 @@ function renderFinding(f: Finding, n: number): string {
   out.push(`${guide}${pc.dim(figures.arrowRight)} ${pc.dim("where")}  ${f.location}`);
   out.push(`${guide}${wrap(f.description, guide)}`);
   if (f.evidence) out.push(`${guide}${pc.dim(figures.arrowRight)} ${pc.dim("evidence")}  ${pc.dim(truncate(f.evidence, 160))}`);
-  out.push(`${guide}${pc.green(figures.tick)} ${pc.green("fix")}  ${wrap(f.remediation, guide)}`);
+  out.push(`${guide}${pc.yellow(figures.tick)} ${pc.yellow("fix")}  ${wrap(f.remediation, guide)}`);
   out.push("");
   return out.join("\n");
 }
